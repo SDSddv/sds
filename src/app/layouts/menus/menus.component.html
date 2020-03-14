@@ -1,0 +1,18 @@
+<!-- <div class="label">{{appInfo.title}}:</div> -->
+<dx-menu
+    [items]="menuItems"
+    displayExpr="name"
+    (onItemClick)="ItemClick($event)">
+</dx-menu>
+
+<dx-popup
+  [width]="300"
+  [height]="250"
+  [showTitle]="true"
+  title="{{currentItem}}"
+  [closeOnOutsideClick]="true"
+  [(visible)]= "popupVisible" >
+  <app-open *ngIf="currentItem === 'Open'" > </app-open>
+  <app-about *ngIf="currentItem === 'About'" > </app-about>
+</dx-popup>
+

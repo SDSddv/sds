@@ -1,0 +1,35 @@
+::ng-deep #navtree {
+    height: 250px;
+}
+::ng-deep #scrollview {
+    height: auto;
+    position: relative;
+}
+
+.handle {
+  outline: none;
+  -webkit-user-select: none;
+  user-select: none;
+  z-index: 9999;
+  height: 5px;
+  display: block;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  line-height: 0;
+}
+
+.handle-row {
+  width: 15px;
+  top: 50%;
+  left: -2px;
+  transform: translateX(-50%) rotate(270deg);
+  cursor: col-resize;
+}
+
+.handle-column {
+  height: 15px;
+  left: 50%;
+  top: -4px;
+  cursor: row-resize;
+}

@@ -1,0 +1,10 @@
+<label for="picked">Choose file to upload</label>
+<div>
+  <input type="file" id="picked" #picked
+    (click)="theText=''"
+    (change)="onPicked(picked)">
+</div>
+<dx-button
+  text="OK"
+  (onClick)="okClicked($event)">
+</dx-button>

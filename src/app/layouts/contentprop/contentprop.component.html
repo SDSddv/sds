@@ -1,0 +1,24 @@
+<p>Properties</p>
+<div *ngIf="getProperties()">
+  <label><b>name:</b> {{prop.name}} </label>
+  <label><b>comment:</b> {{prop.comment}} </label>
+  <label *ngIf="prop.history" > <b>history:</b> {{prop.history}} </label>
+  <label *ngIf="prop.type" > <b>type:</b> {{prop.type}} </label>
+  <label *ngIf="prop.unit" > <b>unit:</b> {{prop.unit}} </label>
+  <div *ngIf="prop.dimensions" >
+    <div *ngFor="let dimI of this.prop.dimensions; index as I">
+      <label> <b>dimension {{I}}:</b>
+        <b>size:</b> {{dimI.size}}
+        <div *ngIf="dimI.scale"> <b>scale:</b> {{dimI.scale}} </div>
+      </label>
+    </div>
+  </div>
+  <div *ngIf="prop.variants" >
+    <div *ngFor="let dimI of this.prop.variants; index as I">
+      <label> <b>variants {{I}}:</b>
+        <b>name:</b> {{dimI.name}}
+        <div *ngIf="dimI.comment"> <b>comment:</b> {{dimI.comment}}</div>
+      </label>
+    </div>
+  </div>
+</div>

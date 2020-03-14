@@ -1,0 +1,34 @@
+<p>Value : </p>
+
+<div *ngIf="getValueType() === 'valuesCube' " >
+  <label for="#i0">(</label>
+  <input type="number" id="#i0"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel">
+  ,j,k) =
+</div>
+
+<div *ngIf="getValueType() === 'valuesHyperCube' " >
+  <label for="#i00">(</label>
+  <input type="number" id="#i00"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel">
+  <label for="#j0">,</label>
+  <input type="number" id="#j0"  min="1" max="{{dimJ}}" [(ngModel)]="j0" #name="ngModel">
+  ,k,l) =
+</div>
+
+<p-table [value]="getValue( i0, j0 )">
+    <ng-template pTemplate="header">
+      <tr *ngIf="!this.scalOrVect">
+        _|
+        <th *ngFor="let item of this.matrix[0]; index as j">
+            {{decoup0_col[j]}}
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-i="rowIndex">
+      <tr >
+        <div *ngIf="!this.scalOrVect"> <b> {{decoup1_lig[i]}} | </b> </div>
+        <td *ngFor="let item of this.matrix[i]; index as j">
+                {{this.matrix[i][j]}}
+        </td>
+      </tr>
+    </ng-template>
+</p-table>

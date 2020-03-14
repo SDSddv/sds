@@ -1,0 +1,25 @@
+<div fxLayout="row" fxFlexFill ngxSplit="row">
+  <div fxFlex="30%" ngxSplitArea >
+    <div id="navtree">
+      <dx-scroll-view #scrollView
+          id="scrollview"
+          [scrollByContent]="scrollByContent"
+          [scrollByThumb]="scrollByThumb"
+          [showScrollbar]="scrollbarMode"
+          [bounceEnabled]="pullDown"
+          [reachBottomText]="reachBottomText">
+          <dx-tree-view
+             [dataSource]="hierarchicalData()"
+             [searchEnabled]="true"
+             (onItemClick)="selectItem($event)">
+          </dx-tree-view>
+      </dx-scroll-view>
+    </div>
+  </div>
+  <div class="handle handle-row" ngxSplitHandle>
+        <i class="material-icons">&#xE25D;</i>
+  </div>
+  <div fxFlex="70%" ngxSplitArea class="c1r1" >
+    <div><app-contentpage> </app-contentpage></div>
+  </div>
+</div>
