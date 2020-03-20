@@ -13,7 +13,7 @@ export class Matrix extends SDSNode {
 
   // the following function permits to use "instanceof this class"
   static [Symbol.hasInstance](obj) {
-    if (obj.values ) { return true; }
+    if (obj.values) { return true; }
   }
 }
 export type pathInDicoDirectory = string; // a string which begin with a '/'

@@ -11,7 +11,8 @@
           <dx-tree-view
              [dataSource]="hierarchicalData()"
              [searchEnabled]="true"
-             (onItemClick)="selectItem($event)">
+             (onItemClick)="selectItem($event)"
+             (onItemContextMenu) = "onRightClick($event)">
           </dx-tree-view>
       </dx-scroll-view>
     </div>

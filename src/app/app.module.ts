@@ -26,6 +26,7 @@ import { ContentpropComponent } from './layouts/contentprop/contentprop.componen
 import { ContentvalueComponent } from './layouts/contentvalue/contentvalue.component';
 import {TableModule} from 'primeng/table';
 import { AboutComponent } from './dialogs/about/about.component';
+import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { AboutComponent } from './dialogs/about/about.component';
     ContentpageComponent,
     ContentpropComponent,
     ContentvalueComponent,
-    AboutComponent
+    AboutComponent,
+    ContextmenuComponent
   ],
   imports: [
     BrowserModule,
@@ -47,6 +49,7 @@ import { AboutComponent } from './dialogs/about/about.component';
     SplitModule,
     DxScrollViewModule,
     DxTreeViewModule,
+    DxContextMenuModule,
     DxPopupModule,
     RouterModule,
     FormsModule,
