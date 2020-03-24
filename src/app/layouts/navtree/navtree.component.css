@@ -2,7 +2,7 @@
     height: 250px;
 }
 ::ng-deep #scrollview {
-    height: auto;
+    height: 350px;
     position: relative;
 }
 
