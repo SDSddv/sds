@@ -16,11 +16,12 @@
   top: 50%;
   left: -2px;
   transform: translateX(-50%) rotate(270deg);
-  cursor: col-resize;;
+  cursor: col-resize;
 }
 
 .handle-column {
   height: 15px;
+  width: 15px;
   left: 50%;
   top: -4px;
   cursor: row-resize;
