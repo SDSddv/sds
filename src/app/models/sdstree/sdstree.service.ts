@@ -446,6 +446,18 @@ export class SdstreeService {
       // console.log(this.currentNode);
       this.prop.name = this.currentNode.name;
       this.prop.comment = this.currentNode.comment;
+      /*
+        As the current node is of SDSNode generic type,
+        the history property never exists on that type of object.
+        Convert it to the "any" type in order to
+        check if it has the history property.
+      */
+      const curNode: any = this.currentNode;
+      if (curNode.history) {
+        let nodeHistory = curNode.history;
+        if (nodeHistory)
+          this.prop.history = nodeHistory;
+      }
       if (this.currentNode instanceof Matrix) {
         // console.log('in getCurrentNodeProperties Matrix');
         // console.log(this.currentNode);
