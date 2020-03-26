@@ -33,16 +33,20 @@ export class manageValues {
       if (typeof this.currentNode.values === 'string') {
         res = typeof this.curNode.getCurrentNodeJsonValue();
       } else {
-        if (typeof this.currentNode.values === 'number') {
+        if (typeof this.currentNode.values === 'number' ||
+            typeof this.currentNode.values === 'boolean') {
           // scalar
           res = 'value';
         } else {
           // console.log('in convertValue v =' + v);
-          if (typeof this.currentNode.values[0] === 'number') {
+          if (typeof this.currentNode.values[0] === 'number' ||
+              typeof this.currentNode.values[0] === 'boolean') {
             res = 'valuesVect';
-          } else if (typeof this.currentNode.values[0][0] === 'number') {
+          } else if (typeof this.currentNode.values[0][0] === 'number' ||
+                     typeof this.currentNode.values[0][0] === 'boolean') {
             res = 'valuesMatrix';
-          } else if (typeof this.currentNode.values[0][0][0] === 'number') {
+          } else if (typeof this.currentNode.values[0][0][0] === 'number' ||
+                     typeof this.currentNode.values[0][0][0] === 'boolean') {
             res = 'valuesCube';
           } else {
             res = 'valuesHyperCube';
@@ -91,24 +95,29 @@ export class manageValues {
     // console.log('in convertValue va =' + va);
     // console.log('in convertValue i0=' + i0 + ' j0=' + j0);
     let v: any;
-    let res: number[][];
+    let res: any[][];
     if (typeof va === 'string') {
       v = this.curNode.getCurrentNodeJsonValue();
     } else {
       v = va;
     }
     // console.log(v);
-    if (typeof v === 'number') {
+    if (typeof v === 'number' ||
+        typeof v === 'boolean') {
       res = [[v]];
     } else {
       // console.log('in convertValue v =' + v);
-      if (typeof v[0] === 'number') { // Vector
+      if (typeof v[0] === 'number' ||
+          typeof v[0] === 'boolean') { // Vector
         res = [v];
-      } else if (typeof v[0][0] === 'number') { // Matrix
+      } else if (typeof v[0][0] === 'number' ||
+                 typeof v[0][0] === 'boolean') { // Matrix
         res = v;
-      } else if (typeof v[0][0][0] === 'number') { // cube
+      } else if (typeof v[0][0][0] === 'number' ||
+                 typeof v[0][0][0] === 'boolean') { // cube
         res = v[i0];
-      } else if (typeof v[0][0][0][0] === 'number') { // HyperCube
+      } else if (typeof v[0][0][0][0] === 'number' ||
+                 typeof v[0][0][0][0] === 'boolean') { // HyperCube
         res = v[i0][j0];
       } else { // robustness behavior
         res = [[0]];
