@@ -16,8 +16,7 @@ export class ContextmenuComponent implements OnInit {
 
   contextMenuItems = [
     { text: 'Create' },
-    { text: 'Delete' },
-    { text: 'Edit' }
+    { text: 'Delete' }
   ];
 
   sdsContextMenuItems = [
@@ -26,8 +25,7 @@ export class ContextmenuComponent implements OnInit {
         { text: 'Group' },
       ]
     },
-    { text: 'Delete' },
-    { text: 'Edit' }
+    { text: 'Delete' }
   ];
 
   groupContextMenuItems = [
@@ -37,13 +35,11 @@ export class ContextmenuComponent implements OnInit {
         { text: 'Matrix' }
       ]
     },
-    { text: 'Delete' },
-    { text: 'Edit' }
+    { text: 'Delete' }
   ];
 
   matrixContextMenuItems = [
-    { text: 'Delete' },
-    { text: 'Edit' }
+    { text: 'Delete' }
   ];
 
   /* Before the context menu is shown, build dynamically the menu items. */
