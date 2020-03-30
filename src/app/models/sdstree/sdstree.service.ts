@@ -422,6 +422,11 @@ export class SdstreeService {
     // console.log(this.currentNode);
   }
 
+  /* Gets the currently selected node in the tree view. */
+  getCurrentNode() {
+    return this.currentNode;
+  }
+
   // to know if the currentNode is a Matrix with scales ( Decoupage)
   hasDecoup() {
     return this.curNode.hasDecoup(this.currentNode);

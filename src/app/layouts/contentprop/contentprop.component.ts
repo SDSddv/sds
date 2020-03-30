@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {SdstreeService} from '../../models/sdstree/sdstree.service';
 import {nullProp, Properties} from './Properties';
+import notify from 'devextreme/ui/notify';
+import {DxSelectBoxModule} from "devextreme-angular";
 
 @Component({
   selector: 'app-contentprop',
@@ -8,8 +10,13 @@ import {nullProp, Properties} from './Properties';
   styleUrls: ['./contentprop.component.css']
 })
 export class ContentpropComponent implements OnInit {
-
   prop: Properties;
+
+  allowedDataTypes: string[] = [
+    "boolean",
+    "integer",
+    "float"
+  ];
 
   constructor(private sdsService: SdstreeService) {
     this.prop = new Properties();
@@ -17,6 +24,18 @@ export class ContentpropComponent implements OnInit {
 
   ngOnInit() {
   }
+
+  onFormSubmit = function(e) {
+    notify({
+      message: "You have submitted the form",
+      position: {
+          my: "center bottom",
+          at: "center bottom"
+      }
+    }, "success", 3000);
+    e.preventDefault();
+  }
+
 
   getProperties() {
     this.prop = nullProp;

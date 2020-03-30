@@ -8,7 +8,9 @@ import {
   DxMenuModule,
   DxScrollViewModule,
   DxSelectBoxModule,
-  DxTreeViewModule
+  DxTreeViewModule,
+  DxTextBoxModule,
+  DxValidatorModule
 } from 'devextreme-angular';
 import {AppInfoService, ScreenService} from './shared/services';
 import { NavtreeComponent } from './layouts/navtree/navtree.component';
@@ -27,6 +29,8 @@ import { ContentvalueComponent } from './layouts/contentvalue/contentvalue.compo
 import {TableModule} from 'primeng/table';
 import { AboutComponent } from './dialogs/about/about.component';
 import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.component';
+import {DxDataGridModule} from 'devextreme-angular';
+import {DxNumberBoxModule} from 'devextreme-angular';
 
 @NgModule({
   declarations: [
@@ -54,6 +58,11 @@ import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.componen
     RouterModule,
     FormsModule,
     DxButtonModule,
+    DxTextBoxModule,
+    DxValidatorModule,
+    DxSelectBoxModule,
+    DxDataGridModule,
+    DxNumberBoxModule,
     TableModule
   ],
   providers: [ScreenService, AppInfoService, MessageService],

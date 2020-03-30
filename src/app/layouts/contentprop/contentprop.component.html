@@ -1,24 +1,77 @@
-<p>Properties</p>
-<div *ngIf="getProperties()">
-  <label><b>name:</b> {{prop.name}} </label>
-  <label><b>comment:</b> {{prop.comment}} </label>
-  <label *ngIf="prop.history" > <b>history:</b> {{prop.history}} </label>
-  <label *ngIf="prop.type" > <b>type:</b> {{prop.type}} </label>
-  <label *ngIf="prop.unit" > <b>unit:</b> {{prop.unit}} </label>
-  <div *ngIf="prop.dimensions" >
-    <div *ngFor="let dimI of this.prop.dimensions; index as I">
-      <label> <b>dimension {{I}}:</b>
-        <b>size:</b> {{dimI.size}}
-        <div *ngIf="dimI.scale"> <b>scale:</b> {{dimI.scale}} </div>
-      </label>
+<form action="edit" (submit)="onFormSubmit($event)">
+    <div class="dx-fieldset" style="margin:0;" *ngIf="getProperties()">
+        <div class="dx-fieldset-header">Properties</div>
+        <div class="dx-field">
+            <div class="dx-field-label">Name</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=prop.name>
+                <dx-validator>
+                  <dxi-validation-rule type="required" message="Name is required"></dxi-validation-rule>
+                </dx-validator>
+              </dx-text-box>
+            </div>
+        </div>
+        <div class="dx-field">
+            <div class="dx-field-label">Comment</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=prop.comment>
+              </dx-text-box>
+            </div>
+        </div>
+        <div class="dx-field" *ngIf="prop.history">
+            <div class="dx-field-label">History</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=prop.history>
+              </dx-text-box>
+            </div>
+        </div>
+        <div class="dx-field" *ngIf="prop.type">
+            <div class="dx-field-label">Type</div>
+            <div class="dx-field-value">
+              <dx-select-box [items]="allowedDataTypes"
+                             placeholder="Choose the data type"
+                             [value]="prop.type">
+              </dx-select-box>
+            </div>
+        </div>
+        <div class="dx-field" *ngIf="prop.unit">
+            <div class="dx-field-label">Unit</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=prop.unit>
+              </dx-text-box>
+            </div>
+        </div>
+        <div class="dx-field" *ngIf="prop.dimensions">
+          <div *ngFor="let dimI of this.prop.dimensions; index as I">
+            <div class="dx-field-label">Dimension {{I}}</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=dimI.size>
+              </dx-text-box>
+            </div>
+            <div *ngIf="dimI.scale">
+              <div class="dx-field-label">Scale {{I}}</div>
+              <div class="dx-field-value">
+                <dx-text-box [(value)]=dimI.scale>
+                </dx-text-box>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dx-field" *ngIf="prop.variants">
+          <div *ngFor="let varI of this.prop.variants; index as I">
+            <div class="dx-field-label">Variant {{I}}</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=varI.name>
+              </dx-text-box>
+            </div>
+            <div *ngIf="varI.scale">
+              <div class="dx-field-label">Comment {{I}}</div>
+              <div class="dx-field-value">
+                <dx-text-box [(value)]=varI.comment>
+                </dx-text-box>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
-  </div>
-  <div *ngIf="prop.variants" >
-    <div *ngFor="let dimI of this.prop.variants; index as I">
-      <label> <b>variants {{I}}:</b>
-        <b>name:</b> {{dimI.name}}
-        <div *ngIf="dimI.comment"> <b>comment:</b> {{dimI.comment}}</div>
-      </label>
-    </div>
-  </div>
-</div>
+</form>

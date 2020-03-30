@@ -36,7 +36,7 @@ export class manageCurrentNode {
       res = this.currentNodeJsonValue;
     } else {
       // not value yet ( the promise is not completed )
-      res = [[0]];
+      res = null;
     }
     return res;
   }
@@ -51,7 +51,7 @@ export class manageCurrentNode {
       res = this.currentNodeJsonDecoupValue[i];
     } else {
       // not value yet ( the promise is not completed )
-      res = [0];
+      res = null;
     }
     // console.log('in getCurrentNodeJsonDecoupValue res=');
     // console.log(res);

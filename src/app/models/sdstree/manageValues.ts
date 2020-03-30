@@ -101,6 +101,9 @@ export class manageValues {
     } else {
       v = va;
     }
+    if (!v) {
+      return null;
+    }
     // console.log(v);
     if (typeof v === 'number' ||
         typeof v === 'boolean') {
@@ -120,7 +123,7 @@ export class manageValues {
                  typeof v[0][0][0][0] === 'boolean') { // HyperCube
         res = v[i0][j0];
       } else { // robustness behavior
-        res = [[0]];
+        res = null;
       }
     }
     // console.log('in convertValue res =' + res);
