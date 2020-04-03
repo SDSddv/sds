@@ -41,6 +41,12 @@ export class manageCurrentNode {
     return res;
   }
 
+  setCurrentNodeJsonValue(value) {
+    if (value) {
+      this.currentNodeJsonValue = value;
+    }
+  }
+
   getCurrentNodeJsonDecoupValue(i: number): valuesVect  {
     // console.log('in getCurrentNodeJsonDecoupValue i=');
     // console.log(i);

@@ -15,22 +15,17 @@
   <dx-data-grid
     id="gridContainer"
     [dataSource]="getData(i0, j0)"
-    [allowColumnReordering]="true"
     [customizeColumns]="customizeColumns"
     [showBorders]="true"
+    [loadPanel]="loadPanelProps"
+    (onEditingStart)="onEditingStart($event)"
     (onContentReady)="onContentReady($event)"
-    (onInitNewRow)="onInitNewRow($event)">
-    <dxo-row-dragging
-            [allowReordering]="true"
-            [onReorder]="onReorderRow"
-            [showDragIcons]="true">
-    </dxo-row-dragging>
+    (onInitNewRow)="onInitNewRow($event)"
+    (onContextMenuPreparing)="onContextMenuPreparing($event)">
     <dxo-paging [enabled]="true"></dxo-paging>
     <dxo-editing
-         mode="row"
-         [allowUpdating]="true"
-         [allowDeleting]="true"
-         [allowAdding]="true">
+         mode="cell"
+         [allowUpdating]="true">
     </dxo-editing>
   </dx-data-grid>
   <!-- <div *ngIf="getValueType() === 'valuesCube' " > -->

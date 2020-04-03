@@ -33,9 +33,12 @@ export class SdstreeService {
 
   private treeViewItem = null; // Last item that was right clicked on the tree view
   private treeViewInstance = null; // Tree view component instance
+  private managedNodes = null;
+  private lastEditedCellData = null;
 
   // By default SDS begin by loading the tutorial
   constructor() {
+    this.managedNodes = new Array();
     this.constructSdtreeTuto();
     this.setCurrentNode('d0');
   }
@@ -387,10 +390,35 @@ export class SdstreeService {
   /*
     Updates the ZIP file with the SDS tree model.
   */
-  // FIXME: Some directories may have appeared. We need to add them to the zip !
   updateZip() {
-    this.zip.file('index.json', JSON.stringify(this.sds));
+    /* Update the main json file. */
+    this.zip.file('index.json', JSON.stringify(this.sds, null, "\t"));
+    /* Check if some matrix with forwarded values have to be updated. */
+    let forwardedMatrixes = this.getForwardedMatrixes(this.curNode.mapMatrix);
+    if (forwardedMatrixes) {
+      for (let forwardedMatrix of forwardedMatrixes) {
+        let jsonLocation = forwardedMatrix.path;
+        let jsonValues = forwardedMatrix.values;
+        /*
+          If a forwarded matrix has no "values" property,
+          there is not need to update it.
+        */
+        if (!jsonValues || !jsonValues.length) {
+          continue;
+        }
+        /*
+          The forwarded matrix has a "values" property,
+          update the appropriate JSON file.
+        */
+        let values = jsonValues[0];
+        if (jsonValues.length > 1) {
+          values = jsonValues;
+        }
+        this.zip.file(jsonLocation, JSON.stringify(values, null, "\t"));
+      }
+    }
   }
+
   // load the archive file into the zip object
   // and update SDS tree application model from de index.json file
   getJsonIndex() {
@@ -410,6 +438,82 @@ export class SdstreeService {
     this.mapMatrix = this.nv.mapMatrix;
   }
 
+  getMatrixName(matrixPath) {
+    let matrixName = null;
+    if (matrixPath) {
+      const index = matrixPath.lastIndexOf("/") + 1;
+      matrixName = matrixPath.substr(index);
+    }
+    return matrixName;
+  }
+
+  getMatrixByName(matrixName) {
+    let matrix = null;
+    if (matrixName && this.managedNodes && this.managedNodes.length > 0) {
+      for (let node of this.managedNodes) {
+        let currentNode = node.currentNode;
+        if (currentNode) {
+          if (currentNode.name == matrixName) {
+            matrix = node;
+            break;
+          }
+        }
+      }
+    }
+    return matrix;
+  }
+
+  getForwardedMatrixValues(matrixPath) {
+    let values = null;
+    if (matrixPath) {
+      let matrixName = this.getMatrixName(matrixPath);
+      let matrix = this.getMatrixByName(matrixName);
+      if (matrix) {
+        if (matrix.currentNodeJsonValue) {
+          values = matrix.currentNodeJsonValue;
+        }
+      }
+    }
+    return values;
+  }
+
+  /*
+    Gets an array of all the matrixes that have a stringified value.
+   */
+  getForwardedMatrixes(matrixMap) {
+    let forwardedMatrixes = null;
+    if (matrixMap) {
+      forwardedMatrixes = new Array();
+      for (let entry of matrixMap.entries()) {
+        let value = entry[1];
+        if (value) {
+          let entryValues = value.values;
+          if (entryValues) {
+            if (typeof entryValues == 'string') {
+              let forwardedMatrixesMap = new Map();
+              forwardedMatrixesMap["path"] = entryValues;
+              let matrixPath = entryValues.replace(".json", "");
+              let values = this.getForwardedMatrixValues(matrixPath);
+              if (values) {
+                forwardedMatrixesMap["values"] = values;
+              }
+              forwardedMatrixes.push(forwardedMatrixesMap);
+            }
+          }
+        }
+      }
+    }
+    return forwardedMatrixes;
+  }
+
+  setLastEditedCell(content) {
+    this.lastEditedCellData = content;
+  }
+
+  getLastEditedCell() {
+    return this.lastEditedCellData;
+  }
+
   // when the user select a node tree in the GUI
   // update the CurrentNode object loading
   // the SDStree Node
@@ -418,6 +522,24 @@ export class SdstreeService {
     this.curNode = new manageCurrentNode(key, this.sds, this.mapMatrix, this.zip);
     this.currentNode = this.curNode.currentNode;
     this.curValue = new manageValues(this.currentNode, this.curNode);
+    /* Insert new item in the managed nodes array only if it doesn't already exist. */
+    let filteredNodeArray = this.managedNodes.filter(value=> value.nodeKey==this.curNode.nodeKey)
+    if (filteredNodeArray && filteredNodeArray.length <= 0) {
+      this.managedNodes.push(this.curNode);
+    }
+    else {
+      /*
+        Each time a new current node is allocated,
+        update its instance in the managed nodes array.
+      */
+      const index = this.managedNodes.indexOf(filteredNodeArray[0])
+      this.managedNodes[index] = this.curNode;
+    }
+    /*
+      When changing the current node,
+      reset any previously edited cell data in the data grid.
+    */
+    this.setLastEditedCell(null);
     // console.log('in setCurrentNode this.currentNode =');
     // console.log(this.currentNode);
   }
@@ -514,6 +636,13 @@ export class SdstreeService {
         return this.curValue.getCurrentValue(i0, j0);
     } else {
         return [];
+    }
+  }
+
+  setCurrentValue(value, i0?: number , j0?: number) {
+    if (this.curValue) {
+      this.curValue.setCurrentValue(value, i0, j0);
+      this.updateZip();
     }
   }
 

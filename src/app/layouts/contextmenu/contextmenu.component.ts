@@ -79,9 +79,6 @@ export class ContextmenuComponent implements OnInit {
       console.log("Deleting node " + treeViewItem.id);
       this.sdsService.deleteNode(treeViewItem.id);
     }
-    else if (e.itemData.text == "Edit") {
-      console.log("Editing node " + treeViewItem.id);
-    }
     let treeViewInstance = this.sdsService.getTreeViewInstance()
     if (treeViewInstance) {
       treeViewInstance.refreshTree()

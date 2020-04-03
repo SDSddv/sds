@@ -25,8 +25,20 @@ export class ContentvalueComponent implements OnInit {
   decoup1_lig: number[];
   previousNode = null;
   previousData = null;
+  private loadPanelProps: any = {
+    enabled: true,
+    showIndicator: true,
+    showPane: true,
+    text: "Loading data..."
+  };
 
   constructor(private sdsService: SdstreeService) {
+    /*
+      Allow the customizeColumns to be run in the angular context.
+      With that property any class instance attribute/method can be called
+      within the customizeColumns callback.
+     */
+    this.customizeColumns = this.customizeColumns.bind(this);
   }
 
   ngOnInit() {
@@ -71,66 +83,187 @@ export class ContentvalueComponent implements OnInit {
     this.dataGrid.instance.option("dataSource", this.getData(this.i0, this.j0, true));
   }
 
+  updateDecoupData(decoupData) {
+    for (let iter = 0; iter < this.previousData.length; iter++) {
+      let item = this.previousData[iter];
+      if (item) {
+        /* Decoup data is stored in the first element of each row item. */
+        item[0] = decoupData[iter];
+      }
+    }
+  }
+
   /*
     Custonizes the columns captions (titles) to display in the grid view.
   */
   customizeColumns(columns) {
     if (columns) {
+      let data = this.getData(this.i0, this.j0);
       for (let iter = 0; iter < columns.length; iter++) {
         if (iter == 0) {
-          columns[iter].caption = "Row Id / Column ID";
+          if (!this.scalOrVect) {
+            columns[iter].caption = "Altitude / Mach";
+          }
+          else {
+            columns[iter].caption = "Row Id / Column ID";
+          }
           columns[iter].allowEditing = false;
         }
         else {
-          let caption = +columns[iter].caption;
-          caption -= 1;
-          if (caption < 0) {
-            caption = 0;
+          if (!this.scalOrVect) {
+            if (this.decoup0_col) {
+              columns[iter].caption = "" + this.decoup0_col[iter-1];
+            }
+            if (this.decoup1_lig) {
+              this.updateDecoupData(this.decoup1_lig);
+            }
           }
-          columns[iter].caption = ""+caption
         }
         columns[iter].alignment = "center";
+//        columns[iter].allowSorting = false;
       }
     }
   }
 
+  getDataSourceItems() {
+    let items = null;
+    if (!this.dataGrid && !this.dataGrid.instance) {
+      console.error("Unable to get data grid instance, aborting...");
+      return
+    }
+    let dataSource = this.dataGrid.instance.getDataSource();
+    if (dataSource) {
+      items = dataSource.items();
+    }
+    return items;
+  }
+
+  onEditingStart(e) {
+    /* Do not take a reference on e.data array, make a deep copy. */
+    let lastEditedCellData = Object.assign([], e.data);
+    this.sdsService.setLastEditedCell(lastEditedCellData)
+  }
+
+  hasCellContentChanged(content, cellsContent) {
+    let hasChanged = false;
+    if (content && cellsContent) {
+      for (let iter = 0; iter < cellsContent.length; iter++) {
+        let item = cellsContent[iter];
+        if (item) {
+          if (content[0] == item[0]) {
+            for (let iter2 = 1; iter2 < item.length; iter2++) {
+              if (content[iter2] == item[iter2]) {
+                continue;
+              }
+              hasChanged = true;
+              break;
+            }
+            if (hasChanged) {
+              break;
+            }
+          }
+        }
+      }
+    }
+    return hasChanged;
+  }
+
+  /*
+    Cell edition end handler.
+  */
   onContentReady(e) {
-/*
-    console.log(e.component)
-    if (this.columnsReordered(e.component)) {
-      console.log("Columns reordered")
-
+    let items = this.getDataSourceItems();
+    let lastEditedCellData = this.sdsService.getLastEditedCell();
+    /* Check if some cell content has changed. */
+    if (this.hasCellContentChanged(lastEditedCellData, items)) {
+      if (items) {
+        let currentProperties = this.sdsService.getCurrentNodeProperties();
+        let newItems = new Array();
+        for (let rowIter = 0; rowIter < items.length; rowIter++) {
+          let rowItems = items[rowIter]
+          if (rowItems != null) {
+            newItems[rowIter] = new Array();
+            for (let colIter = 1; colIter < rowItems.length; colIter++) {
+              let colItem = rowItems[colIter];
+              if (colItem != null) {
+                /*
+                  For booleans, convert 1/0 values to true/false.
+                */
+                if (currentProperties &&
+                    currentProperties.type &&
+                    currentProperties.type == 'boolean') {
+                  if (colItem == 1) {
+                    colItem = true;
+                  }
+                  else {
+                    colItem = false;
+                  }
+                }
+                newItems[rowIter].push(colItem)
+              }
+            }
+          }
+        }
+        /* Update the modified content in the SDS. */
+        this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1));
+        /* Reset the last edited cell content. */
+        this.sdsService.setLastEditedCell(null);
+      }
     }
-    else {
-      console.log("Columns NOT reordered")
-
-    }
- */
   }
 
   /*
     Row creation handler.
   */
   onInitNewRow(e) {
-  /*
     console.log("Adding new row")
-  */
   }
 
-  /*
-    Rows reordering handler.
-  */
- onReorderRow(e) {
-  /*
-    console.log("Reordering row")
-    let visibleRows = e.component.getVisibleRows();
-    console.log("visibleRows: ")
-    console.log(visibleRows)
-    console.log("toIndex: ")
-    console.log(e.toIndex)
-    console.log("itemData: ")
-    console.log(e.itemData)
-  */
+  onInitNewColumn(position) {
+    console.log("Adding new column at position: " + position)
+    let data = this.getData(this.i0, this.j0, true);
+    if (data) {
+      for (let iterX = 0; iterX < data.length; iterX++) {
+        let item = data[iterX];
+        if (item) {
+          item.splice(position, 0, "three");
+        }
+      }
+      this.dataGrid.instance.refresh();
+    }
+  }
+
+  onContextMenuPreparing(e) {
+    if (e) {
+      let items = e.items;
+      if (!items) {
+        items = new Array();
+      }
+      else {
+        /* Make the array empty to not allow sorting. */
+        items.length = 0;
+      }
+      /* Right click was done on a column. */
+      if (e.row.rowType == "header") {
+        items.unshift(
+          {
+            text: 'Add column',
+            icon: 'columnfield',
+            onClick: this.onInitNewColumn.bind(this, (e.columnIndex + 1))
+          }
+        );
+      }
+      else {
+        /* Right click was done on a row. */
+        items.unshift(
+          {
+            text: 'Add row',
+            icon: 'rowfield',
+            onClick: this.onInitNewRow.bind(this)
+          }
+        );
+      }
+    }
   }
 
   /*
@@ -145,25 +278,29 @@ export class ContentvalueComponent implements OnInit {
         let data = this.getValue(i, j);
         if (data) {
           newData = new Array();
-          /*
-          if (!this.scalOrVect) {
-            console.log(this.decoup0_col)
-            console.log(this.decoup1_lig)
-          }
-          */
           for (let iterX = 0; iterX < data.length; iterX++) {
             const itemX = data[iterX];
-            let rowName = "" + iterX;
+            let rowName = "" + (iterX+1);
             newData[iterX] = new Array();
             newData[iterX].push(rowName);
             for (let iterY = 0; iterY < itemX.length; iterY++) {
-              const itemY = itemX[iterY];
+              let itemY = itemX[iterY];
+              /*
+                For booleans, convert true/false values to 1/0 numbers to avoid
+                the datagrid to display checkboxes instead of true/false strings.
+              */
+              if (typeof itemY == 'boolean') {
+                if (itemY == true) {
+                  itemY = 1;
+                }
+                else {
+                  itemY = 0;
+                }
+              }
               newData[iterX].push(itemY);
             }
           }
         }
-//        console.log(newData);
-
         /* The returned data may be null
            because when it contains a path to another JSON file,
            it is parsed asynchronously using a js promise.
@@ -250,5 +387,4 @@ export class ContentvalueComponent implements OnInit {
     }
     return this.matrix;
   }
-
 }

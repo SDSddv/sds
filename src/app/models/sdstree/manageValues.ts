@@ -25,6 +25,28 @@ export class manageValues {
     }
   }
 
+  setCurrentValue(value, i0?: number , j0?: number) {
+    if (value) {
+      if (this.currentNode instanceof  Matrix) {
+        if (typeof this.currentNode.values === 'string') {
+          this.curNode.setCurrentNodeJsonValue(value);
+        }
+        else {
+          let dataType = this.getTypeOfValue();
+          if (dataType == 'valuesCube') {
+            this.currentNode.values = this.convertNumberMatrixToValue(value, this.currentNode.values, i0);
+          }
+          else if (dataType == 'valuesHyperCube') {
+            this.currentNode.values = this.convertNumberMatrixToValue(value, this.currentNode.values, i0, j0);
+          }
+          else {
+            this.currentNode.values = this.convertNumberMatrixToValue(value);
+          }
+        }
+      }
+    }
+  }
+
   // display service of the type of value of the current node
   // to display matrix, cube, hypercube
   getTypeOfValue(): string {
@@ -129,4 +151,57 @@ export class manageValues {
     // console.log('in convertValue res =' + res);
     return res;
   }
+
+  private convertNumberMatrixToValue(newValue, currentValue?, i0?: number , j0?: number) {
+    let res = null;
+    if (!newValue) {
+      console.error("Provided an invalid value.");
+      return res;
+    }
+    if (currentValue) {
+      res = currentValue;
+      let isArray = res instanceof Array;
+      if (isArray) {
+        if (i0 != null) {
+          for (let iter = 0; iter < res.length; iter++) {
+            let item = res[iter];
+            if (iter < i0) {
+              continue;
+            }
+            if (j0 == null) {
+              res[iter] = newValue;
+            }
+            else {
+              for (let iter2 = 0; iter2 < item.length; iter2++) {
+                let item2 = item[iter2];
+                if (iter2 < j0) {
+                  continue;
+                }
+                res[iter][iter2] = newValue;
+                break;
+              }
+            }
+            break;
+          }
+        }
+      }
+    }
+    else {
+      res = newValue;
+      let isArray = newValue instanceof Array;
+      if (isArray) {
+        let arrayLen = newValue.length;
+        if (arrayLen <= 1) {
+          let subArrayLen = newValue[0].length;
+          if (subArrayLen > 1) {
+            res = newValue[0];
+          }
+          else {
+            res = newValue[0][0];
+          }
+        }
+      }
+    }
+    return res;
   }
+}
