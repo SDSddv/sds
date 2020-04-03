@@ -43,13 +43,13 @@
         </div>
         <div class="dx-field" *ngIf="prop.dimensions">
           <div *ngFor="let dimI of this.prop.dimensions; index as I">
-            <div class="dx-field-label">Dimension {{I}}</div>
+            <div class="dx-field-label">Dimension {{I+1}}</div>
             <div class="dx-field-value">
               <dx-text-box [(value)]=dimI.size>
               </dx-text-box>
             </div>
             <div *ngIf="dimI.scale">
-              <div class="dx-field-label">Scale {{I}}</div>
+              <div class="dx-field-label">Scale {{I+1}}</div>
               <div class="dx-field-value">
                 <dx-text-box [(value)]=dimI.scale>
                 </dx-text-box>
@@ -59,13 +59,13 @@
         </div>
         <div class="dx-field" *ngIf="prop.variants">
           <div *ngFor="let varI of this.prop.variants; index as I">
-            <div class="dx-field-label">Variant {{I}}</div>
+            <div class="dx-field-label">Variant {{I+1}}</div>
             <div class="dx-field-value">
               <dx-text-box [(value)]=varI.name>
               </dx-text-box>
             </div>
             <div *ngIf="varI.scale">
-              <div class="dx-field-label">Comment {{I}}</div>
+              <div class="dx-field-label">Comment {{I+1}}</div>
               <div class="dx-field-value">
                 <dx-text-box [(value)]=varI.comment>
                 </dx-text-box>
