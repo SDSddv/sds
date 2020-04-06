@@ -120,11 +120,14 @@ export class ContentvalueComponent implements OnInit {
           }
         }
         columns[iter].alignment = "center";
-//        columns[iter].allowSorting = false;
+        columns[iter].allowSorting = false;
       }
     }
   }
 
+  /*
+    Gets the whole data grid items.
+  */
   getDataSourceItems() {
     let items = null;
     if (!this.dataGrid && !this.dataGrid.instance) {
@@ -138,12 +141,18 @@ export class ContentvalueComponent implements OnInit {
     return items;
   }
 
+  /*
+    Cell edition start handler.
+  */
   onEditingStart(e) {
     /* Do not take a reference on e.data array, make a deep copy. */
     let lastEditedCellData = Object.assign([], e.data);
     this.sdsService.setLastEditedCell(lastEditedCellData)
   }
 
+  /*
+    Checks if a cell content has been modified.
+  */
   hasCellContentChanged(content, cellsContent) {
     let hasChanged = false;
     if (content && cellsContent) {
@@ -215,11 +224,33 @@ export class ContentvalueComponent implements OnInit {
   /*
     Row creation handler.
   */
-  onInitNewRow(e) {
-    console.log("Adding new row")
+  onAddRow(position) {
+    console.log("Adding new row at position: " + position)
+    let data = this.getData(this.i0, this.j0, true);
+    if (data) {
+      let item = data[position-1];
+      let itemId = item[0];
+      let itemLen = item.length;
+      let newData = new Array();
+      for (let iter = 0; iter < itemLen; iter++) {
+        if (iter == 0) {
+          let id = +itemId;
+          id++;
+          newData.push(""+id);
+        }
+        else {
+          newData.push("");
+        }
+      }
+      data.splice(position, 0, newData);
+      this.dataGrid.instance.refresh();
+    }
   }
 
-  onInitNewColumn(position) {
+  /*
+    Column creation handler.
+  */
+  onAddColumn(position) {
     console.log("Adding new column at position: " + position)
     let data = this.getData(this.i0, this.j0, true);
     if (data) {
@@ -233,8 +264,38 @@ export class ContentvalueComponent implements OnInit {
     }
   }
 
+  /*
+    Column deletion handler.
+  */
+  onDeleteColumn(position) {
+    console.log("Deleting column at position: " + position)
+    let data = this.getData(this.i0, this.j0, true);
+    if (data) {
+      if (data.length >= position) {
+        data.splice(position, 1);
+      }
+      this.dataGrid.instance.refresh();
+    }
+  }
+
+  /*
+    Row deletion handler.
+  */
+  onDeleteRow(position) {
+    console.log("Deleting row at position: " + position)
+    let data = this.getData(this.i0, this.j0, true);
+    if (data) {
+      this.dataGrid.instance.refresh();
+    }
+  }
+
+  /*
+    Contextual menu handler.
+  */
   onContextMenuPreparing(e) {
     if (e) {
+      let properties = this.sdsService.getCurrentNodeProperties();
+      let dataItems = this.getDataSourceItems();
       let items = e.items;
       if (!items) {
         items = new Array();
@@ -245,24 +306,49 @@ export class ContentvalueComponent implements OnInit {
       }
       /* Right click was done on a column. */
       if (e.row.rowType == "header") {
+        /*
+          Delete the first column is not allowed.
+          Delete a column is not allowed if the grid contains only one column.
+        */
+        if (e.columnIndex != 0 &&
+            (dataItems && dataItems[0] && (dataItems[0].length > 2))) {
+          items.unshift(
+            {
+              text: 'Delete column',
+              icon: 'trash',
+              onClick: this.onDeleteColumn.bind(this, e.columnIndex)
+            }
+          );
+        }
         items.unshift(
           {
-            text: 'Add column',
-            icon: 'columnfield',
-            onClick: this.onInitNewColumn.bind(this, (e.columnIndex + 1))
+            text: 'Insert column after',
+            icon: 'add',
+            onClick: this.onAddColumn.bind(this, (e.columnIndex + 1))
           }
         );
       }
       else {
         /* Right click was done on a row. */
+        if (e.rowIndex != 0) {
+          /* Delete the first row is not allowed. */
+          items.unshift(
+            {
+              text: 'Delete row',
+              icon: 'trash',
+              onClick: this.onDeleteRow.bind(this, e.rowIndex)
+            }
+          );
+        }
         items.unshift(
           {
-            text: 'Add row',
-            icon: 'rowfield',
-            onClick: this.onInitNewRow.bind(this)
+            text: 'Insert row after',
+            icon: 'add',
+            onClick: this.onAddRow.bind(this, (e.rowIndex + 1))
           }
         );
       }
+      e.items = items;
     }
   }
 
