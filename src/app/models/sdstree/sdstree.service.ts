@@ -35,6 +35,7 @@ export class SdstreeService {
   private treeViewInstance = null; // Tree view component instance
   private managedNodes = null;
   private lastEditedCellData = null;
+  private contentPropInstance = null; // Content property component instance
 
   // By default SDS begin by loading the tutorial
   constructor() {
@@ -67,6 +68,16 @@ export class SdstreeService {
   /* Gets the tree view widget instance. */
   getTreeViewInstance() {
     return this.treeViewInstance
+  }
+
+  /* Sets the content property widget instance. */
+  setContentPropInstance(instance) {
+    this.contentPropInstance = instance
+  }
+
+  /* Gets the content property widget instance. */
+  getContentPropInstance() {
+    return this.contentPropInstance
   }
 
   /* Gets the node matching the provided identifier in a nodes list. */
@@ -342,6 +353,19 @@ export class SdstreeService {
   }
 
   /*
+     Updates a node properties in the nav tree.
+  */
+  updateNodeItem(properties) {
+    if (properties) {
+      let nodeId = this.curNode.nodeKey;
+      let node = this.getNodeById(this.navtree, nodeId)
+      if (node) {
+        node.text = properties.name;
+      }
+    }
+  }
+
+  /*
      Deletes a node from its identifier.
   */
   deleteNode(nodeId) {
@@ -540,6 +564,20 @@ export class SdstreeService {
       reset any previously edited cell data in the data grid.
     */
     this.setLastEditedCell(null);
+    /*
+      Update form data.
+      FIXME: this shouldn't be necessary.
+    */
+   let contentPropInstance = this.getContentPropInstance();
+    if (contentPropInstance) {
+      contentPropInstance.updateFormData();
+      /*
+        FIXME: this is a hack to not auto submit the form
+        when select box content is updated when changing the
+        current node in the tree view.
+      */
+      contentPropInstance.setCurrentNode(this.currentNode);
+    }
     // console.log('in setCurrentNode this.currentNode =');
     // console.log(this.currentNode);
   }
@@ -630,6 +668,44 @@ export class SdstreeService {
     return this.prop;
   }
 
+  /*
+    Updates the current node properties.
+  */
+  setCurrentNodeProperties(properties: Properties) {
+    if (properties && this.currentNode) {
+      let currentName = this.currentNode.name;
+      if (currentName) {
+        /* Update the tree view item name. */
+        this.updateNodeItem(properties);
+      }
+      this.currentNode.name = properties.name;
+      this.currentNode.comment = properties.comment;
+      if (this.currentNode instanceof Sdstree) {
+        if (properties.history) {
+          this.currentNode.history = properties.history;
+        }
+      }
+      if (this.currentNode instanceof Matrix) {
+        if (properties.type) {
+          this.currentNode.type = properties.type;
+        }
+        if (properties.unit) {
+          this.currentNode.unit = properties.unit;
+        }
+        if (properties.dimensions) {
+          this.currentNode.dimensions = properties.dimensions;
+        }
+        if (properties.variants) {
+          this.currentNode.variants = properties.variants;
+        }
+      }
+      /*
+        Update the SDS data model.
+      */
+      this.updateZip();
+    }
+  }
+
   // display service of the value of the current node
   getCurrentValue(i0?: number , j0?: number): number[][]  {
     if (this.curValue) {
@@ -639,9 +715,15 @@ export class SdstreeService {
     }
   }
 
+  /*
+    Updates the current node value.
+  */
   setCurrentValue(value, i0?: number , j0?: number) {
     if (this.curValue) {
       this.curValue.setCurrentValue(value, i0, j0);
+      /*
+        Update the SDS data model.
+      */
       this.updateZip();
     }
   }
