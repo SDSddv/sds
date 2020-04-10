@@ -4,6 +4,7 @@ import {Sdstree} from './sdstree';
 import {Group} from './SDSGroup';
 import * as JSZip from 'jszip';
 import * as assert from 'assert';
+import {SdstreeService} from './sdstree.service';
 
 // manageCurrentNode permits
 // to set the Current Node selected by the user
@@ -19,7 +20,7 @@ export class manageCurrentNode {
   public sds: Sdstree;
   public mapMatrix: Map<string, Matrix>;
 
-  constructor(key: string, sds: Sdstree, mapMatrix: Map<string, Matrix>, zip: JSZip) {
+  constructor(private sdsService: SdstreeService, key: string, sds: Sdstree, mapMatrix: Map<string, Matrix>, zip: JSZip) {
     this.nodeKey = key;
     this.sds = sds;
     this.mapMatrix = mapMatrix;
@@ -186,6 +187,11 @@ export class manageCurrentNode {
   private updatecurrentNodeJsonDecoupValue(i: number, s: string) {
     assert( i === 0 || i === 1 );
     this.currentNodeJsonDecoupValue[i] = JSON.parse(s);
+    /*
+      Warn the SDS service that some new decoup data arrived.
+      FIXME: This is a hack. We should be able to sync with the JSZIP promise.
+    */
+    this.sdsService.onDecoupDataResolved(i)
   }
 
   public hasDecoup(curNode: SDSNode): boolean {

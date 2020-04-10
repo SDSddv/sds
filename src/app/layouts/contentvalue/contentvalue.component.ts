@@ -39,6 +39,7 @@ export class ContentvalueComponent implements OnInit {
       within the customizeColumns callback.
      */
     this.customizeColumns = this.customizeColumns.bind(this);
+    this.sdsService.setContentValueInstance(this);
   }
 
   ngOnInit() {
@@ -83,6 +84,16 @@ export class ContentvalueComponent implements OnInit {
     this.dataGrid.instance.option("dataSource", this.getData(this.i0, this.j0, true));
   }
 
+  /*
+    Called when forwarded decoup data has been resolved.
+    FIXME: This is a hack. We should be able to sync with the JSZIP promise.
+  */
+  onDecoupDataResolved(index) {
+    /* Retrieve the updated data and force to refresh the data grid view. */
+    this.getData(this.i0, this.j0, true);
+    this.dataGrid.instance.refresh();
+  }
+
   updateDecoupData(decoupData) {
     for (let iter = 0; iter < this.previousData.length; iter++) {
       let item = this.previousData[iter];
@@ -102,7 +113,12 @@ export class ContentvalueComponent implements OnInit {
       for (let iter = 0; iter < columns.length; iter++) {
         if (iter == 0) {
           if (!this.scalOrVect) {
-            columns[iter].caption = "Altitude / Mach";
+            if (this.decoup0_col && this.decoup1_lig) {
+              columns[iter].caption = "Altitude / Mach";
+            }
+            else {
+              columns[iter].caption = "Row Id / Column ID";
+            }
           }
           else {
             columns[iter].caption = "Row Id / Column ID";
@@ -427,21 +443,13 @@ export class ContentvalueComponent implements OnInit {
     if (this.sdsService.hasDecoup()) {
       this.decoup0_col = this.sdsService.getDecoup(0);
       this.decoup1_lig = this.sdsService.getDecoup(1);
-    } else {
-        const vL: number[] = new Array(this.dimI);
-        for (let i = 0; i < dimL; i++) {
-          vL[i] = i + 1;
-        }
-        this.decoup1_lig = vL;
-        const vC: number[] = new Array(this.dimJ);
-        for (let i = 0; i < dimC; i++) {
-          vC[i] = i + 1;
-        }
-        this.decoup0_col = vC;
+    }
+    else {
+      this.decoup0_col = null;
+      this.decoup1_lig = null;
     }
     // console.log('in ContentValue getDecoup this.decoup1_lig=' + this.decoup1_lig);
     // console.log('in ContentValue getDecoup this.decoup0_col=' + this.decoup0_col);
-
   }
 
   getValue(i0?: number , j0?: number) {

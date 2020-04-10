@@ -36,12 +36,14 @@ export class SdstreeService {
   private managedNodes = null;
   private lastEditedCellData = null;
   private contentPropInstance = null; // Content property component instance
+  private contentValueInstance = null; // Content value component instance
 
   // By default SDS begin by loading the tutorial
   constructor() {
     this.managedNodes = new Array();
     this.constructSdtreeTuto();
     this.setCurrentNode('d0');
+    // FIXME: The initial node must be highlighted in the tree view.
   }
 
   constructSdtreeTuto() {
@@ -62,22 +64,32 @@ export class SdstreeService {
 
   /* Sets the tree view widget instance. */
   setTreeViewInstance(instance) {
-    this.treeViewInstance = instance
+    this.treeViewInstance = instance;
   }
 
   /* Gets the tree view widget instance. */
   getTreeViewInstance() {
-    return this.treeViewInstance
+    return this.treeViewInstance;
   }
 
   /* Sets the content property widget instance. */
   setContentPropInstance(instance) {
-    this.contentPropInstance = instance
+    this.contentPropInstance = instance;
   }
 
   /* Gets the content property widget instance. */
   getContentPropInstance() {
-    return this.contentPropInstance
+    return this.contentPropInstance;
+  }
+
+  /* Sets the content value widget instance. */
+  setContentValueInstance(instance) {
+    this.contentValueInstance = instance;
+  }
+
+  /* Gets the content value widget instance. */
+  getContentValueInstance() {
+    return this.contentValueInstance;
   }
 
   /* Gets the node matching the provided identifier in a nodes list. */
@@ -543,7 +555,7 @@ export class SdstreeService {
   // the SDStree Node
   setCurrentNode(key: string) {
     // console.log('in setCurrentNode key=' + key);
-    this.curNode = new manageCurrentNode(key, this.sds, this.mapMatrix, this.zip);
+    this.curNode = new manageCurrentNode(this, key, this.sds, this.mapMatrix, this.zip);
     this.currentNode = this.curNode.currentNode;
     this.curValue = new manageValues(this.currentNode, this.curNode);
     /* Insert new item in the managed nodes array only if it doesn't already exist. */
@@ -585,6 +597,19 @@ export class SdstreeService {
   /* Gets the currently selected node in the tree view. */
   getCurrentNode() {
     return this.currentNode;
+  }
+
+  /*
+    Called when forwarded decoup data has been resolved.
+    In that use case, the content value data grid must be updated.
+    FIXME: This is a hack. We should be able to sync with the JSZIP promise.
+  */
+  onDecoupDataResolved(index) {
+    let contentValueInstance = this.getContentValueInstance();
+    if (contentValueInstance) {
+      /* Call the content value component handler. */
+      contentValueInstance.onDecoupDataResolved(index)
+    }
   }
 
   // to know if the currentNode is a Matrix with scales ( Decoupage)
