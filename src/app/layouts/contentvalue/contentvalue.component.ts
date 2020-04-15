@@ -105,6 +105,25 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Extracts the matrix name from a scale path (/group1/group2/.../matrixName) from its index.
+  */
+  getDecoupMatrixName(index) {
+    let name = null;
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode && currentNode instanceof Matrix) {
+      let dimensions = currentNode.dimensions;
+      if (dimensions && index <= dimensions.length) {
+        let scale = dimensions[index].scale;
+        if (scale) {
+          const idx = scale.lastIndexOf("/") + 1;
+          name = scale.substr(idx);
+        }
+      }
+    }
+    return name;
+  }
+
+  /*
     Custonizes the columns captions (titles) to display in the grid view.
   */
   customizeColumns(columns) {
@@ -114,7 +133,19 @@ export class ContentvalueComponent implements OnInit {
         if (iter == 0) {
           if (!this.scalOrVect) {
             if (this.decoup0_col && this.decoup1_lig) {
-              columns[iter].caption = "Altitude / Mach";
+              let verticalCaption = this.getDecoupMatrixName(1);
+              let horizontalCaption = this.getDecoupMatrixName(0);
+              /*
+                Apply default values if
+                either vertical or horizontal caption is unavailable.
+              */
+              if (!verticalCaption) {
+                verticalCaption = "Scale 1"
+              }
+              if (!horizontalCaption) {
+                horizontalCaption = "Scale 2"
+              }
+              columns[iter].caption = verticalCaption + " / " + horizontalCaption;
             }
             else {
               columns[iter].caption = "Row Id / Column ID";

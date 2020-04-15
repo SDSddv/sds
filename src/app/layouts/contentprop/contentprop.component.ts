@@ -100,7 +100,6 @@ export class ContentpropComponent implements OnInit {
   */
   onChange(e) {
     if (e) {
-      console.error(e);
       /*
         Autosubmit the form when some form element looses the focus.
       */
