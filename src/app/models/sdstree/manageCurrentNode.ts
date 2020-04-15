@@ -29,6 +29,22 @@ export class manageCurrentNode {
     this.setCurrentNode();
   }
 
+  /*
+    Gets the matrix map.
+  */
+  getMapMatrix() {
+    return this.mapMatrix;
+  }
+
+  /*
+    Sets the matrix map.
+  */
+   setMapMatrix(mapMatrix) {
+    if (mapMatrix) {
+      this.mapMatrix = mapMatrix;
+    }
+  }
+
   getCurrentNodeJsonValue(): value | valuesVect | valuesMatrix |
              valuesCube | valuesHyperCube {
     let res: value | valuesVect | valuesMatrix |
@@ -130,8 +146,16 @@ export class manageCurrentNode {
     // As the reading of json values is asynchronous
     // this reading is made now
     if (this.currentNode instanceof  Matrix) {
-      if (typeof this.currentNode.values === 'string') {
-        this.getJsonValues(this.currentNode.values);
+      let values = this.currentNode.values;
+      if (typeof values === 'string') {
+        /*
+          If the value begins with a '/' character,
+          remove it in order to parse the file.
+        */
+        if (values[0] == '/') {
+          values = values.slice(1, values.length);
+        }
+        this.getJsonValues(values);
       }
       // also for the scale values (decoupage)
       if (this.hasDecoup(this.currentNode)) {
@@ -161,7 +185,14 @@ export class manageCurrentNode {
     }
   }
 
-  private getJsonValues(jsonFileInZip: string) {
+  getJsonValues(jsonFileInZip: string) {
+    /*
+      If the json file path begins with a '/' character,
+      remove it in order to parse the file.
+    */
+    if (jsonFileInZip[0] == '/') {
+      jsonFileInZip = jsonFileInZip.slice(1, jsonFileInZip.length);
+    }
     this.zip
       .file(jsonFileInZip)
       .async('string')
@@ -173,9 +204,18 @@ export class manageCurrentNode {
   private updatecurrentNodeJsonValue(s: string) {
     // console.log('in updatecurrentNodeJsonValue s=' + s);
     this.currentNodeJsonValue = JSON.parse(s);
+    /* Warn the SDS service that a node value has been parsed. */
+    this.sdsService.onForwardedValuesResolved(this.currentNodeJsonValue);
   }
 
   private getJsonValuesDecoup(i: number, jsonFileInZip: string) {
+    /*
+      If the json file path begins with a '/' character,
+      remove it in order to parse the file.
+    */
+    if (jsonFileInZip[0] == '/') {
+      jsonFileInZip = jsonFileInZip.slice(1, jsonFileInZip.length);
+    }
     this.zip
       .file(jsonFileInZip)
       .async('string')

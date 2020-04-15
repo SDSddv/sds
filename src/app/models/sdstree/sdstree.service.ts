@@ -37,6 +37,8 @@ export class SdstreeService {
   private lastEditedCellData = null;
   private contentPropInstance = null; // Content property component instance
   private contentValueInstance = null; // Content value component instance
+  private pendingData = null;
+  private resolvedDataIdx = 0;
 
   // By default SDS begin by loading the tutorial
   constructor() {
@@ -378,6 +380,226 @@ export class SdstreeService {
   }
 
   /*
+    Gets a node path from its name.
+    The returned path is relative to the SDS tree root node
+    in the format: /SdsTreeName/GroupName/NodeName.
+  */
+  getNodePath(nodePath, nodeName, parentNode?) {
+    let node = parentNode;
+    if (!nodeName) {
+      return null;
+    }
+    if (!parentNode) {
+      node = this.sds;
+    }
+    if (node.name == nodeName) {
+      return nodePath + '/' + node.name;
+    }
+    let groups = node.groups;
+    if (groups) {
+      for (let iterGrp = 0; iterGrp < groups.length; iterGrp++) {
+        let group = groups[iterGrp];
+        if (group) {
+          if (group.name == nodeName) {
+            return nodePath + '/' + node.name + '/' + group.name;
+          }
+          let subgroups = group.groups;
+          if (subgroups) {
+            let subPath = this.getNodePath(nodePath + '/' + node.name, nodeName, group);
+            if (subPath) {
+              return subPath;
+            }
+          }
+          let submatrixes = group.matrices;
+          if (submatrixes) {
+            for (let iterMat = 0; iterMat < submatrixes.length; iterMat++) {
+              let submatrix = submatrixes[iterMat];
+              if (submatrix) {
+                if (nodeName == submatrix.name) {
+                  nodePath = nodePath + '/' + node.name + '/' + group.name;
+                  return nodePath + '/' + submatrix.name;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  /*
+    Checks if there is no more than one reference in the
+    ZIP files matching the provided name.
+    It so the entry name is returned. Else, null is returned.
+  */
+  isLastMatchingZipEntry(currentName) {
+    let lastEntry = null;
+    let files = Object.keys(this.zip.files);
+    if (files) {
+      const idx = currentName.indexOf("/");
+      let prefix = currentName.slice(0, idx+1);
+      let filteredFiles = files.filter(value=> value.includes(prefix))
+      if (filteredFiles && filteredFiles.length <= 1) {
+        lastEntry = filteredFiles[0];
+      }
+    }
+    return lastEntry;
+  }
+
+  /*
+    Updates a ZIP file entry.
+    It replaces the entry matching the currentName with the newName and
+    applies to it the provided values.
+  */
+  updateZipEntry(currentName, newName, values) {
+    /* Remove the leading / if any. */
+    if (currentName[0] == '/') {
+      currentName = currentName.slice(1, currentName.length);
+    }
+    if (newName[0] == '/') {
+      newName = newName.slice(1, newName.length);
+    }
+    this.zip.remove(currentName);
+    this.zip.file(newName, JSON.stringify(values));
+    let lastEntry = this.isLastMatchingZipEntry(currentName);
+    if (lastEntry) {
+      this.zip.remove(lastEntry);
+    }
+  }
+
+  /* Updates the matrix map keys according to the provided new node name. */
+  updateMatrixMap(currentName, newName, isMatrix) {
+    if (currentName &&
+        newName &&
+        this.curNode.mapMatrix) {
+      let newMapMatrix = new Map();
+      this.pendingData = new Array();
+      for (let entry of this.curNode.mapMatrix.entries()) {
+        let key = entry[0];
+        let value = entry[1];
+        if (key.includes(currentName)) {
+          const idx = key.indexOf(currentName);
+          let prefix = key.slice(0, idx);
+          let nodeName = key.slice(idx, key.length);
+          if (nodeName.length == currentName.length) {
+            let newKey = prefix + newName;
+            let val = value.values;
+            if (val && (typeof val == 'string')) {
+              let newValue = newKey + ".json";
+              value.values = newValue;
+              this.curNode.getJsonValues(key + ".json");
+              this.pendingData.push({ current: key + ".json", new: newValue})
+            }
+            newMapMatrix.set(newKey, value);
+          }
+          else {
+            /* If the item is a matrix, do not process anything. */
+            if (!isMatrix) {
+              let newKey = prefix + nodeName.replace(currentName, newName);
+              let val = value.values;
+              if (val && (typeof val == 'string')) {
+                let newValue = newKey + ".json";
+                value.values = newValue;
+                this.curNode.getJsonValues(key + ".json");
+                this.pendingData.push({ current: key + ".json", new: newValue});
+              }
+              newMapMatrix.set(newKey, value);
+            }
+            else {
+              newMapMatrix.set(key, value);
+            }
+          }
+        }
+        else {
+          newMapMatrix.set(key, value);
+        }
+      }
+      this.curNode.setMapMatrix(newMapMatrix);
+      this.mapMatrix = newMapMatrix;
+    }
+  }
+
+  /*
+    Replaces all the scale references matching the currentScalePath by
+    the provided newScalePath.
+  */
+  updateScaleRefsByPath(currentScalePath, newScalePath, parent?) {
+    if (currentScalePath && newScalePath) {
+      if (!parent) {
+        parent = this.sds;
+      }
+      let groups = parent.groups;
+      if (groups) {
+        for (let iter = 0; iter < groups.length; iter++) {
+          let group = groups[iter];
+          if (group) {
+            let subgroup = group.groups;
+            if (subgroup) {
+              this.updateScaleRefsByPath(currentScalePath, newScalePath, group);
+            }
+          }
+          let matrixes = group.matrices;
+          if (matrixes) {
+            for (let iter = 0; iter < matrixes.length; iter++) {
+              let matrix = matrixes[iter];
+              if (matrix) {
+                let dimensions = matrix.dimensions;
+                if (dimensions) {
+                  for (let iterDim = 0; iterDim < dimensions.length; iterDim++) {
+                    let scale = dimensions[iterDim].scale;
+                    if (scale && scale.includes(currentScalePath)) {
+                      dimensions[iterDim].scale = scale.replace(currentScalePath, newScalePath);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /*
+    Updates the scales references in the SDS tree for a given node name.
+  */
+  updateScaleRefs(currentNodeName, newNodeName, isMatrix) {
+    if (currentNodeName &&
+        newNodeName &&
+        (currentNodeName != newNodeName)) {
+      /* Get the path of node */
+      let nodePath = this.getNodePath("", currentNodeName);
+      if (nodePath) {
+        let rootPath = this.getNodePath("", this.sds.name);
+        if (rootPath) {
+          /*
+            Compute the current scale path by
+            removing the SDS prefix from the node path.
+          */
+          let currentScalePath = nodePath.replace(rootPath, "");
+          if (currentScalePath) {
+            let newScalePath = null;
+            /*
+              Compute the new scale path by
+              replacing the current node name by the new node name.
+            */
+            const idx = currentScalePath.indexOf(currentNodeName);
+            newScalePath = currentScalePath.slice(0, (idx));
+            newScalePath = newScalePath + newNodeName;
+            /* Replace all the scale references in the SDS tree. */
+            this.updateScaleRefsByPath(currentScalePath, newScalePath);
+            /* Update the matrix map. */
+            this.updateMatrixMap(currentNodeName, newNodeName, isMatrix);
+            /* Update the zip file. */
+            this.updateZip();
+          }
+        }
+      }
+    }
+  }
+
+  /*
      Deletes a node from its identifier.
   */
   deleteNode(nodeId) {
@@ -449,6 +671,10 @@ export class SdstreeService {
         let values = jsonValues[0];
         if (jsonValues.length > 1) {
           values = jsonValues;
+        }
+        /* Remove the leading / if any. */
+        if (jsonLocation[0] == '/') {
+          jsonLocation = jsonLocation.slice(1, jsonLocation.length);
         }
         this.zip.file(jsonLocation, JSON.stringify(values, null, "\t"));
       }
@@ -580,7 +806,7 @@ export class SdstreeService {
       Update form data.
       FIXME: this shouldn't be necessary.
     */
-   let contentPropInstance = this.getContentPropInstance();
+    let contentPropInstance = this.getContentPropInstance();
     if (contentPropInstance) {
       contentPropInstance.updateFormData();
       /*
@@ -590,6 +816,8 @@ export class SdstreeService {
       */
       contentPropInstance.setCurrentNode(this.currentNode);
     }
+    /* Reset any pending data when changing the current node. */
+    this.resetPendingData();
     // console.log('in setCurrentNode this.currentNode =');
     // console.log(this.currentNode);
   }
@@ -610,6 +838,30 @@ export class SdstreeService {
       /* Call the content value component handler. */
       contentValueInstance.onDecoupDataResolved(index)
     }
+  }
+
+  /* Resets any pending data. */
+  resetPendingData() {
+    this.pendingData = null;
+    this.resolvedDataIdx = 0;
+  }
+
+  /*
+    JSON data parsing handler.
+  */
+  onForwardedValuesResolved(values) {
+    if (!this.pendingData) {
+      return;
+    }
+    if (this.pendingData && (this.resolvedDataIdx >= this.pendingData.length)) {
+      /* Reset any pending data. */
+      this.resetPendingData();
+      return;
+    }
+    let data = this.pendingData[this.resolvedDataIdx];
+    data.values = values;
+    this.updateZipEntry(data.current, data.new, data.values);
+    this.resolvedDataIdx++;
   }
 
   // to know if the currentNode is a Matrix with scales ( Decoupage)
@@ -702,6 +954,8 @@ export class SdstreeService {
       if (currentName) {
         /* Update the tree view item name. */
         this.updateNodeItem(properties);
+        /* Update all the scale references in the SDS tree. */
+        this.updateScaleRefs(currentName, properties.name, (this.currentNode instanceof Matrix));
       }
       this.currentNode.name = properties.name;
       this.currentNode.comment = properties.comment;

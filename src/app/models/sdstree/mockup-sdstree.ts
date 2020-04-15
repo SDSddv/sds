@@ -31,11 +31,11 @@ export const Tuto: Sdstree = {
       {name : 'MachF', comment : 'Mach',
         type : 'float' , unit : '',
         dimensions : [{size : 4}],
-        values : 'VectF/MachF.json' },
+        values : '/VectF/MachF.json' },
       {name : 'AltitudeF', comment : 'altitude',
         type : 'float' , unit : 'x100 feet',
         dimensions : [{size : 6}],
-        values : 'VectF/AltitudeF.json' }
+        values : '/VectF/AltitudeF.json' }
       ]
     },
     {name: 'Mat0' , comment: 'Group Matrix Examples',
@@ -50,14 +50,14 @@ export const Tuto: Sdstree = {
          dimensions : [
            {size : 4, scale: '/VectF/MachF'},
            {size : 6, scale: '/VectF/AltitudeF'}],
-         values : 'Mat0/MatrixF.json' },
+         values : '/Mat0/MatrixF.json' },
        {name : 'MatrixL',
          comment : 'Average Matrix with values in file',
          type : 'float' , unit : '',
          dimensions : [
            {size : 4, scale: '/Vect0/Mach'},
            {size : 6, scale: '/Vect0/Altitude'}],
-         values : 'Mat0/MatrixL.json' }
+         values : '/Mat0/MatrixL.json' }
       ]
     },
     {name: 'Cube0' , comment: 'Group Cube Examples',
