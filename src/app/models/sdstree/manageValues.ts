@@ -19,20 +19,43 @@ export class manageValues {
 
   getCurrentValue(i0?: number , j0?: number): number[][]  {
     if (this.currentNode instanceof  Matrix) {
-        return this.convertValueToNumberMatrix(this.currentNode.values, i0, j0);
+      return this.convertValueToNumberMatrix(this.currentNode.values, i0, j0);
     } else {
-        return [];
+      return [];
+    }
+  }
+
+  /*
+    Updates the current node dimensions according to the provided value.
+  */
+  setCurrentDimensions(value) {
+    if (value) {
+      if (this.currentNode && this.currentNode instanceof Matrix) {
+        let dimensionsArray = this.getValueDimensions(value);
+        if (dimensionsArray) {
+          let currentNodeDimensions = this.currentNode.dimensions;
+          for (let iter = 0; iter < dimensionsArray.length; iter++) {
+            let dimension = dimensionsArray[iter];
+            currentNodeDimensions[iter].size = dimension;
+          }
+        }
+      }
     }
   }
 
   setCurrentValue(value, i0?: number , j0?: number) {
     if (value) {
-      if (this.currentNode instanceof  Matrix) {
+      if (this.currentNode && this.currentNode instanceof  Matrix) {
+        let dataType = this.getTypeOfValue();
         if (typeof this.currentNode.values === 'string') {
-          this.curNode.setCurrentNodeJsonValue(value);
+          let v = value;
+          if (dataType == 'valuesVect') {
+            v = value[0];
+          }
+          this.curNode.setCurrentNodeJsonValue(v);
+          this.setCurrentDimensions(v);
         }
         else {
-          let dataType = this.getTypeOfValue();
           if (dataType == 'valuesCube') {
             this.currentNode.values = this.convertNumberMatrixToValue(value, this.currentNode.values, i0);
           }
@@ -42,9 +65,47 @@ export class manageValues {
           else {
             this.currentNode.values = this.convertNumberMatrixToValue(value);
           }
+          this.setCurrentDimensions(this.currentNode.values);
         }
       }
     }
+  }
+
+  /*
+    Checks the type of the provided current node values.
+    It can be either a scalar or a vector or a matrix or a cube or an hypercube.
+  */
+  checkValueType(value) {
+    let valueType = null;
+    if (!value) {
+      return null;
+    }
+    if (typeof value === 'number' ||
+        typeof value === 'boolean') {
+      /* Scalar */
+      valueType = 'value';
+    }
+    else if (typeof value[0] === 'number' ||
+             typeof value[0] === 'boolean') {
+      /* Vector. */
+      valueType = 'valuesVect';
+    }
+    else if (typeof value[0][0] === 'number' ||
+             typeof value[0][0] === 'boolean') {
+      /* Matrix. */
+      valueType = 'valuesMatrix';
+    }
+    else if (typeof value[0][0][0] === 'number' ||
+             typeof value[0][0][0] === 'boolean') {
+      /* Cube. */
+      valueType = 'valuesCube';
+    }
+    else {
+      /* Hypercube. */
+      valueType = 'valuesHyperCube';
+    }
+
+    return valueType;
   }
 
   // display service of the type of value of the current node
@@ -53,26 +114,15 @@ export class manageValues {
     let res: string;
     if (this.currentNode instanceof  Matrix) {
       if (typeof this.currentNode.values === 'string') {
-        res = typeof this.curNode.getCurrentNodeJsonValue();
+        let jsonValues = this.curNode.getCurrentNodeJsonValue();
+        res = this.checkValueType(jsonValues);
+        if (!res) {
+          res = 'undefined';
+        }
       } else {
-        if (typeof this.currentNode.values === 'number' ||
-            typeof this.currentNode.values === 'boolean') {
-          // scalar
-          res = 'value';
-        } else {
-          // console.log('in convertValue v =' + v);
-          if (typeof this.currentNode.values[0] === 'number' ||
-              typeof this.currentNode.values[0] === 'boolean') {
-            res = 'valuesVect';
-          } else if (typeof this.currentNode.values[0][0] === 'number' ||
-                     typeof this.currentNode.values[0][0] === 'boolean') {
-            res = 'valuesMatrix';
-          } else if (typeof this.currentNode.values[0][0][0] === 'number' ||
-                     typeof this.currentNode.values[0][0][0] === 'boolean') {
-            res = 'valuesCube';
-          } else {
-            res = 'valuesHyperCube';
-          }
+        res = this.checkValueType(this.currentNode.values);
+        if (!res) {
+          res = 'undefined';
         }
       }
     } else {
@@ -81,36 +131,82 @@ export class manageValues {
     return res ;
   }
   // display service of length of a value dimension
-  getValueDim(i: number): number {
+  getValueDim(i: number, value?): number {
     const dim: number[] = [0, 0, 0, 0];
     let v: any;
     assert(i > 0 && i <= 4 );
     // console.log('in getValueDim i =' + i );
     if (this.currentNode instanceof  Matrix) {
-      if (typeof this.currentNode.values === 'string') {
-        v = this.curNode.getCurrentNodeJsonValue();
-      } else {
-        v = this.currentNode.values;
+      if (value) {
+        v = value;
       }
-      if (this.getTypeOfValue() === 'valuesVect' ) {
+      else {
+        if (typeof this.currentNode.values === 'string') {
+          v = this.curNode.getCurrentNodeJsonValue();
+        } else {
+          v = this.currentNode.values;
+        }
+      }
+      let typeOfValue = this.getTypeOfValue();
+      if (typeOfValue === 'valuesVect' ) {
         dim[0] = v.length;
-      } else if (this.getTypeOfValue() === 'valuesMatrix' ) {
-        dim[0] = v.length;
+      } else if (typeOfValue === 'valuesMatrix' ) {
+        dim[0] = v[0].length;
+        dim[1] = v.length;
+      } else if (typeOfValue === 'valuesCube' ) {
+        dim[0] = v[0][0].length;
         dim[1] = v[0].length;
-      } else if (this.getTypeOfValue() === 'valuesCube' ) {
-        dim[0] = v.length;
-        dim[1] = v[0].length;
-        dim[2] = v[0][0].length;
-      } else if (this.getTypeOfValue() === 'valuesHyperCube' ) {
-        dim[0] = v.length;
-        dim[1] = v[0].length;
-        dim[2] = v[0][0].length;
-        dim[3] = v[0][0][0].length;
+        dim[2] = v.length;
+      } else if (typeOfValue === 'valuesHyperCube' ) {
+        dim[0] = v[0][0][0].length;
+        dim[1] = v[0][0].length;
+        dim[2] = v[0].length;
+        dim[3] = v.length;
       }
     }
     // console.log('in getValueDim return =' + dim[i - 1]  );
 
     return dim[i - 1] ;
+  }
+
+  /*
+    Computes an array with each structure dimensions based on the provided value.
+  */
+  getValueDimensions(value) {
+    let dimensionsArray = null;
+    if (value) {
+      if (this.currentNode && this.currentNode instanceof  Matrix) {
+        dimensionsArray = new Array();
+        /*
+          The dimensions attribute may be undefined.
+          In that case, create a dimension array of size 1.
+         */
+        let typeOfValue = this.getTypeOfValue();
+        if (!this.currentNode.dimensions) {
+          this.currentNode.dimensions = new Array();
+          this.currentNode.dimensions.push({size: 1});
+        }
+        /*
+          If a scalar has a dimensions attribute, destroy it.
+          This use case is mainly possible when transforming a vector into a scalar.
+        */
+        if (typeOfValue == 'value') {
+          if (this.currentNode.dimensions) {
+            delete this.currentNode.dimensions;
+          }
+        }
+        if (this.currentNode.dimensions) {
+          const dimensionsCount = this.currentNode.dimensions.length;
+          for (let iter = 0; iter < dimensionsCount; iter++) {
+            let dimension = this.getValueDim(iter+1, value);
+            if (dimension) {
+              dimensionsArray.push(dimension)
+            }
+          }
+        }
+      }
+    }
+    return dimensionsArray;
   }
 
   private convertValueToNumberMatrix(va: any, i0?: number , j0?: number): number[][] {
@@ -126,7 +222,6 @@ export class manageValues {
     if (!v) {
       return null;
     }
-    // console.log(v);
     if (typeof v === 'number' ||
         typeof v === 'boolean') {
       res = [[v]];
@@ -140,10 +235,20 @@ export class manageValues {
         res = v;
       } else if (typeof v[0][0][0] === 'number' ||
                  typeof v[0][0][0] === 'boolean') { // cube
-        res = v[i0];
+        if (i0 == null) {
+          res = v;
+        }
+        else {
+          res = v[i0];
+        }
       } else if (typeof v[0][0][0][0] === 'number' ||
                  typeof v[0][0][0][0] === 'boolean') { // HyperCube
-        res = v[i0][j0];
+        if ((i0 == null) && (j0 == null)) {
+          res = v;
+        }
+        else {
+          res = v[i0][j0];
+        }
       } else { // robustness behavior
         res = null;
       }

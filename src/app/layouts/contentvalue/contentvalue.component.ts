@@ -4,6 +4,15 @@ import notify from 'devextreme/ui/notify';
 import {Matrix} from '../../models/sdstree/SDSMatrix';
 import {DxDataGridComponent} from 'devextreme-angular';
 
+
+/*
+  Defines the available operations on the data grid.
+*/
+enum operationKind {
+  AddData,
+  DeleteData,
+}
+
 @Component({
   selector: 'app-contentvalue',
   templateUrl: './contentvalue.component.html',
@@ -295,20 +304,215 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Linear interpolation/extrapolation between two values.
+    If the distance exactly equals to 0, the first value is returned.
+    If the distance exactly equals to 1, the second value is returned.
+    If the distance is lower than 1, it computes a linear interpolation.
+    If the distance is greater than 1, it computes a linear extrapolation.
+  */
+  lerp(value1: number, value2: number, distance: number) {
+    let lerpValue = (((1 - distance) * value1) + (distance * value2));
+    /* Avoid floating point precision error. */
+    // FIXME: Is 5 digits sufficient for the round precision ?
+    lerpValue = (Math.round(lerpValue*10000)/10000);
+    return lerpValue;
+  }
+
+  /*
+    Computes a cell value from its neighbours values.
+  */
+  computeCellValueFromNeighbours(position, data) {
+    if (!data) {
+      return null;
+    }
+    /*
+      If the data only contains a value,
+      we are not able to perform a linear interpolation/extrapolation
+      between two points.
+    */
+    if (data.length <= 2) {
+      return null;
+    }
+    let value1Position = position-1;
+    if (position >= data.length) {
+      value1Position = position-2;
+    }
+    else if (position == 1) {
+      value1Position = position;
+    }
+    let value1 = data[value1Position];
+    let value2Position = position;
+    if (position >= data.length) {
+      value2Position = position-1;
+    }
+    else if (position == 1) {
+      value2Position = position+1;
+    }
+    let value2 = data[value2Position];
+    let distance = 0.5;
+    if (position >= data.length) {
+      distance = 2;
+    }
+    else if (position == 1) {
+      distance = -1;
+    }
+    let lerpValue = this.lerp(value1, value2, distance);
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode && currentNode instanceof Matrix) {
+      let type = currentNode.type;
+      /* For booleans && integers keep the decimal part of the lerp computation. */
+      if ((type == 'boolean') ||
+          (type == 'integer')) {
+        lerpValue = Math.floor(lerpValue);
+      }
+    }
+    return lerpValue;
+  }
+
+  /*
+    Creates/deletes data at the provided position according to the provided operation kind and
+    updates the SDS tree values and properties accordingly.
+  */
+  setData(position: number, operation: operationKind) {
+    let data = null;
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode instanceof Matrix) {
+      let valueType = this.getValueType();
+      if (valueType == "valuesCube") {
+        for (let iter = 0; iter < this.dimI; iter++) {
+          data = this.getData(iter+1, this.j0, true);
+          if (data) {
+            for (let iterX = 0; iterX < data.length; iterX++) {
+              let item = data[iterX];
+              if (item) {
+                let cellValue = this.computeCellValueFromNeighbours(position, item);
+                if (cellValue == null) {
+                  // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                  cellValue = 0;
+                }
+                if (operation == operationKind.AddData) {
+                  item.splice(position, 0, cellValue);
+                }
+                else if (operation == operationKind.DeleteData) {
+                  item.splice(position, 1);
+                }
+              }
+            }
+            let newItems = new Array();
+            for (let rowIter = 0; rowIter < data.length; rowIter++) {
+              let rowItems = data[rowIter]
+              if (rowItems != null) {
+                newItems[rowIter] = new Array();
+                /* Skip the first column by iterating from 1. */
+                for (let colIter = 1; colIter < rowItems.length; colIter++) {
+                  let colItem = rowItems[colIter];
+                  if (colItem != null) {
+                    newItems[rowIter].push(colItem)
+                  }
+                }
+              }
+            }
+            /* Update the modified content in the SDS. */
+            this.sdsService.setCurrentValue(newItems, iter, (this.j0 - 1));
+          }
+        }
+      }
+      else if (valueType == "valuesHyperCube") {
+        for (let iter = 0; iter < this.dimI; iter++) {
+          for (let iter2 = 0; iter2 < this.dimJ; iter2++) {
+            data = this.getData(iter+1, iter2+1, true);
+            if (data) {
+              for (let iterX = 0; iterX < data.length; iterX++) {
+                let item = data[iterX];
+                if (item) {
+                  let cellValue = this.computeCellValueFromNeighbours(position, item);
+                  if (cellValue == null) {
+                    // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                    cellValue = 0;
+                  }
+                  if (operation == operationKind.AddData) {
+                    item.splice(position, 0, cellValue);
+                  }
+                  else if (operation == operationKind.DeleteData) {
+                    item.splice(position, 1);
+                  }
+                }
+              }
+              let newItems = new Array();
+              for (let rowIter = 0; rowIter < data.length; rowIter++) {
+                let rowItems = data[rowIter]
+                if (rowItems != null) {
+                  newItems[rowIter] = new Array();
+                  /* Skip the first column by iterating from 1. */
+                  for (let colIter = 1; colIter < rowItems.length; colIter++) {
+                    let colItem = rowItems[colIter];
+                    if (colItem != null) {
+                      newItems[rowIter].push(colItem)
+                    }
+                  }
+                }
+              }
+              /* Update the modified content in the SDS. */
+              this.sdsService.setCurrentValue(newItems, iter, iter2);
+            }
+          }
+        }
+      }
+      else {
+        data = this.getData(this.i0, this.j0, true);
+        if (data) {
+          for (let iterX = 0; iterX < data.length; iterX++) {
+            let item = data[iterX];
+            if (item) {
+              let cellValue = this.computeCellValueFromNeighbours(position, item);
+              if (cellValue == null) {
+                // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                cellValue = 0;
+              }
+              if (operation == operationKind.AddData) {
+                item.splice(position, 0, cellValue);
+              }
+              else if (operation == operationKind.DeleteData) {
+                item.splice(position, 1);
+              }
+            }
+          }
+          let newItems = new Array();
+          for (let rowIter = 0; rowIter < data.length; rowIter++) {
+            let rowItems = data[rowIter]
+            if (rowItems != null) {
+              newItems[rowIter] = new Array();
+              /* Skip the first column by iterating from 1. */
+              for (let colIter = 1; colIter < rowItems.length; colIter++) {
+                let colItem = rowItems[colIter];
+                if (colItem != null) {
+                  newItems[rowIter].push(colItem)
+                }
+              }
+            }
+          }
+          /* Update the modified content in the SDS. */
+          this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1));
+        }
+      }
+      /*
+        For cubes & hypercubes retrieve the data again
+        for the coordinates selected by the user.
+      */
+      if (valueType == "valuesCube" ||
+          valueType == "valuesHyperCube") {
+        this.getData(this.i0, this.j0, true);
+      }
+    }
+  }
+
+  /*
     Column creation handler.
   */
   onAddColumn(position) {
     console.log("Adding new column at position: " + position)
-    let data = this.getData(this.i0, this.j0, true);
-    if (data) {
-      for (let iterX = 0; iterX < data.length; iterX++) {
-        let item = data[iterX];
-        if (item) {
-          item.splice(position, 0, "three");
-        }
-      }
-      this.dataGrid.instance.refresh();
-    }
+    this.setData(position, operationKind.AddData);
+    this.dataGrid.instance.refresh();
   }
 
   /*
@@ -316,13 +520,8 @@ export class ContentvalueComponent implements OnInit {
   */
   onDeleteColumn(position) {
     console.log("Deleting column at position: " + position)
-    let data = this.getData(this.i0, this.j0, true);
-    if (data) {
-      if (data.length >= position) {
-        data.splice(position, 1);
-      }
-      this.dataGrid.instance.refresh();
-    }
+    this.setData(position, operationKind.DeleteData);
+    this.dataGrid.instance.refresh();
   }
 
   /*
@@ -406,7 +605,6 @@ export class ContentvalueComponent implements OnInit {
     if (this.sdsService) {
       let currentNode = this.sdsService.getCurrentNode();
       if ((this.previousNode != currentNode) || (force == true)) {
-        this.getValueType();
         let newData = null;
         let data = this.getValue(i, j);
         if (data) {
@@ -460,9 +658,9 @@ export class ContentvalueComponent implements OnInit {
   getValueType() {
     this.typeOfValue = this.sdsService.getTypeOfValue();
     if (this.typeOfValue === 'valuesCube' || this.typeOfValue === 'valuesHyperCube') {
-      this.dimI = this.sdsService.getValueDim(1);
+      this.dimI = this.sdsService.getValueDim(3);
       if (this.typeOfValue === 'valuesHyperCube') {
-        this.dimJ = this.sdsService.getValueDim(2);
+        this.dimJ = this.sdsService.getValueDim(4);
       }
     }
     return this.typeOfValue;
@@ -486,7 +684,6 @@ export class ContentvalueComponent implements OnInit {
   getValue(i0?: number , j0?: number) {
     // console.log('in getValue i0=' + i0 + ' j0=' + j0);
     // console.log('in getValue typeOfValue=' + this.typeOfValue);
-
     if (i0 > this.dimI) {
       notify('i0 > ' + this.dimI, 'error', 500);
       this.i0 = 1;
@@ -495,9 +692,19 @@ export class ContentvalueComponent implements OnInit {
       this.j0 = 1;
     } else {
       if (this.typeOfValue === 'valuesCube') {
-        this.matrix = this.sdsService.getCurrentValue(i0 - 1);
+        if (i0 == null) {
+          this.matrix = this.sdsService.getCurrentValue();
+        }
+        else {
+          this.matrix = this.sdsService.getCurrentValue(i0 - 1);
+        }
       } else if (this.typeOfValue === 'valuesHyperCube') {
-        this.matrix = this.sdsService.getCurrentValue(i0 - 1, j0 - 1);
+        if (i0 == null && j0 == null) {
+          this.matrix = this.sdsService.getCurrentValue();
+        }
+        else {
+          this.matrix = this.sdsService.getCurrentValue(i0 - 1, j0 - 1);
+        }
       } else {
         // console.log('in ContentvalueComponent, getValue is called');
         this.matrix = this.sdsService.getCurrentValue();
