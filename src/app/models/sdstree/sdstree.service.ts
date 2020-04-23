@@ -56,10 +56,6 @@ export class SdstreeService {
     // file memory construction
     this.zip = new JSZip();
     this.zip.file('index.json', JSON.stringify(this.sds));
-    this.zip.file('VectF/MachF.json', JSON.stringify(VectF_MachF_json));
-    this.zip.file('VectF/AltitudeF.json', JSON.stringify(VectF_AltitudeF_json));
-    this.zip.file('Mat0/MatrixF.json', JSON.stringify(Mat0_MatrixF_json));
-    this.zip.file('Mat0/MatrixL.json', JSON.stringify(Mat0_MatrixL_json));
     // user view memory construction
     this.nv = new transformSdsTreeToNavTree(this.sds);
     this.navtree = this.nv.navtree;

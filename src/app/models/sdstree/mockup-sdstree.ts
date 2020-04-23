@@ -31,11 +31,11 @@ export const Tuto: Sdstree = {
       {name : 'MachF', comment : 'Mach',
         type : 'float' , unit : '',
         dimensions : [{size : 4}],
-        values : '/VectF/MachF.json' },
+        values : [1.1, 1.2, 2.3, 3.4] },
       {name : 'AltitudeF', comment : 'altitude',
         type : 'float' , unit : 'x100 feet',
         dimensions : [{size : 6}],
-        values : '/VectF/AltitudeF.json' }
+        values : [1190, 1210, 1230, 1250, 1270, 1290] }
       ]
     },
     {name: 'Mat0' , comment: 'Group Matrix Examples',
@@ -50,14 +50,26 @@ export const Tuto: Sdstree = {
          dimensions : [
            {size : 4, scale: '/VectF/MachF'},
            {size : 6, scale: '/VectF/AltitudeF'}],
-         values : '/Mat0/MatrixF.json' },
+         values : [[1.1, 1.2, 1.3, 1.4],
+                   [2.1, 2.2, 2.3, 2.4],
+                   [3.1, 3.2, 3.3, 3.4],
+                   [4.1, 4.2, 4.3, 4.4],
+                   [5.1, 5.2, 5.3, 5.4],
+                   [6.1, 6.2, 6.3, 6.4]]
+       },
        {name : 'MatrixL',
          comment : 'Average Matrix with values in file',
          type : 'float' , unit : '',
          dimensions : [
            {size : 4, scale: '/Vect0/Mach'},
            {size : 6, scale: '/Vect0/Altitude'}],
-         values : '/Mat0/MatrixL.json' }
+         values : [[1.1, 2.1, 3.1, 4.1],
+                   [1.2, 2.2, 3.2, 4.2],
+                   [1.3, 2.3, 3.3, 4.3],
+                   [1.4, 2.4, 3.4, 4.4],
+                   [1.5, 2.5, 3.5, 4.5],
+                   [1.6, 2.6, 3.6, 4.6]]
+        }
       ]
     },
     {name: 'Cube0' , comment: 'Group Cube Examples',
