@@ -25,17 +25,30 @@ export class MenusComponent {
     }];
 
     constructor(public appInfo: AppInfoService,
-                private messageService: MessageService, private sdsService: SdstreeService) {}
+                private messageService: MessageService,
+                private sdsService: SdstreeService) {
+      if (this.sdsService) {
+        this.sdsService.setMenusComponentInstance(this);
+      }
+    }
+
+    showPopup() {
+      this.popupVisible = true;
+    }
+
+    hidePopup() {
+      this.popupVisible = false;
+    }
 
     ItemClick(data) {
       const item = data.itemData;
       this.currentItem = item.name;
       this.messageService.add(item.name);
       if (this.currentItem === 'Open') {
-        this.popupVisible = true;
+        this.showPopup();
       }
       if (this.currentItem === 'About') {
-        this.popupVisible = true;
+        this.showPopup();
       }
       if (this.currentItem === 'Save') { this.sdsService.saveZip() ; }
       if (this.currentItem === 'New') { this.sdsService.constructSdtreeVide() ; }

@@ -33,6 +33,7 @@ export class SdstreeService {
 
   private treeViewItem = null; // Last item that was right clicked on the tree view
   private treeViewInstance = null; // Tree view component instance
+  private menusComponentInstance = null; // The menus component instance
   private managedNodes = null;
   private lastEditedCellData = null;
   private contentPropInstance = null; // Content property component instance
@@ -63,6 +64,16 @@ export class SdstreeService {
     this.nv = new transformSdsTreeToNavTree(this.sds);
     this.navtree = this.nv.navtree;
     this.mapMatrix = this.nv.mapMatrix;
+  }
+
+  /* Sets the menus component instance. */
+  setMenusComponentInstance(instance) {
+    this.menusComponentInstance = instance;
+  }
+
+  /* Gets the menus component instance. */
+  getMenusComponentInstance() {
+    return this.menusComponentInstance;
   }
 
   /* Sets the tree view widget instance. */

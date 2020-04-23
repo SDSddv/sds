@@ -22,6 +22,10 @@ export class OpenComponent implements OnInit {
 
   okClicked(e) {
     this.sdsService.getJsonIndex();
+    let menusComponent = this.sdsService.getMenusComponentInstance();
+    if (menusComponent) {
+      menusComponent.hidePopup();
+    }
   }
 
   ngOnInit() {
