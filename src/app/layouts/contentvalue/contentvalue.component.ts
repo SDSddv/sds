@@ -369,6 +369,15 @@ export class ContentvalueComponent implements OnInit {
       if ((type == 'boolean') ||
           (type == 'integer')) {
         lerpValue = Math.floor(lerpValue);
+        /*
+          Manage the lerp overflows for booleans by setting the value to 0.
+        */
+        if (type == 'boolean') {
+          if ((lerpValue < 0) ||
+              (lerpValue > 1)) {
+                lerpValue = 0;
+          }
+        }
       }
     }
     return lerpValue;
