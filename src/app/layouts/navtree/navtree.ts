@@ -4,6 +4,6 @@ export class Item {
   text: string;
   expanded ?: boolean;
   items ?: Item[];
-
+  icon ?: string;
 }
 

@@ -17,9 +17,13 @@ export class manageValues {
     this.curNode = cNodeMgt;
   }
 
-  getCurrentValue(i0?: number , j0?: number): number[][]  {
-    if (this.currentNode instanceof  Matrix) {
-      return this.convertValueToNumberMatrix(this.currentNode.values, i0, j0);
+  getCurrentValue(i0?: number , j0?: number, node?): number[][]  {
+    let currentNode = this.currentNode;
+    if (node != null) {
+      currentNode = node;
+    }
+    if (currentNode instanceof  Matrix) {
+      return this.convertValueToNumberMatrix(currentNode.values, i0, j0);
     } else {
       return [];
     }
@@ -28,12 +32,16 @@ export class manageValues {
   /*
     Updates the current node dimensions according to the provided value.
   */
-  setCurrentDimensions(value) {
+  setCurrentDimensions(value, node?) {
     if (value) {
-      if (this.currentNode && this.currentNode instanceof Matrix) {
-        let dimensionsArray = this.getValueDimensions(value);
+      let currentNode = this.currentNode;
+      if (node != null) {
+        currentNode = node;
+      }
+      if (currentNode && currentNode instanceof Matrix) {
+        let dimensionsArray = this.getValueDimensions(value, node);
         if (dimensionsArray) {
-          let currentNodeDimensions = this.currentNode.dimensions;
+          let currentNodeDimensions = currentNode.dimensions;
           for (let iter = 0; iter < dimensionsArray.length; iter++) {
             let dimension = dimensionsArray[iter];
             currentNodeDimensions[iter].size = dimension;
@@ -43,29 +51,33 @@ export class manageValues {
     }
   }
 
-  setCurrentValue(value, i0?: number , j0?: number) {
+  setCurrentValue(value, i0?: number , j0?: number, node?) {
     if (value) {
-      if (this.currentNode && this.currentNode instanceof  Matrix) {
-        let dataType = this.getTypeOfValue();
-        if (typeof this.currentNode.values === 'string') {
+      let currentNode = this.currentNode;
+      if (node != null) {
+        currentNode = node;
+      }
+      if (currentNode && currentNode instanceof  Matrix) {
+        let dataType = this.getTypeOfValue(node);
+        if (typeof currentNode.values === 'string') {
           let v = value;
           if (dataType == 'valuesVect') {
             v = value[0];
           }
           this.curNode.setCurrentNodeJsonValue(v);
-          this.setCurrentDimensions(v);
+          this.setCurrentDimensions(v, node);
         }
         else {
           if (dataType == 'valuesCube') {
-            this.currentNode.values = this.convertNumberMatrixToValue(value, this.currentNode.values, i0);
+            currentNode.values = this.convertNumberMatrixToValue(value, currentNode.values, i0);
           }
           else if (dataType == 'valuesHyperCube') {
-            this.currentNode.values = this.convertNumberMatrixToValue(value, this.currentNode.values, i0, j0);
+            currentNode.values = this.convertNumberMatrixToValue(value, currentNode.values, i0, j0);
           }
           else {
-            this.currentNode.values = this.convertNumberMatrixToValue(value);
+            currentNode.values = this.convertNumberMatrixToValue(value);
           }
-          this.setCurrentDimensions(this.currentNode.values);
+          this.setCurrentDimensions(currentNode.values, node);
         }
       }
     }
@@ -110,17 +122,21 @@ export class manageValues {
 
   // display service of the type of value of the current node
   // to display matrix, cube, hypercube
-  getTypeOfValue(): string {
+  getTypeOfValue(node?): string {
     let res: string;
-    if (this.currentNode instanceof  Matrix) {
-      if (typeof this.currentNode.values === 'string') {
+    let currentNode = this.currentNode;
+    if (node != null) {
+      currentNode = node;
+    }
+    if (currentNode instanceof  Matrix) {
+      if (typeof currentNode.values === 'string') {
         let jsonValues = this.curNode.getCurrentNodeJsonValue();
         res = this.checkValueType(jsonValues);
         if (!res) {
           res = 'undefined';
         }
       } else {
-        res = this.checkValueType(this.currentNode.values);
+        res = this.checkValueType(currentNode.values);
         if (!res) {
           res = 'undefined';
         }
@@ -131,23 +147,27 @@ export class manageValues {
     return res ;
   }
   // display service of length of a value dimension
-  getValueDim(i: number, value?): number {
+  getValueDim(i: number, value?, node?): number {
     const dim: number[] = [0, 0, 0, 0];
     let v: any;
     assert(i > 0 && i <= 4 );
     // console.log('in getValueDim i =' + i );
-    if (this.currentNode instanceof  Matrix) {
+    let currentNode = this.currentNode;
+    if (node != null) {
+      currentNode = node;
+    }
+    if (currentNode instanceof  Matrix) {
       if (value) {
         v = value;
       }
       else {
-        if (typeof this.currentNode.values === 'string') {
+        if (typeof currentNode.values === 'string') {
           v = this.curNode.getCurrentNodeJsonValue();
         } else {
-          v = this.currentNode.values;
+          v = currentNode.values;
         }
       }
-      let typeOfValue = this.getTypeOfValue();
+      let typeOfValue = this.getTypeOfValue(node);
       if (typeOfValue === 'valuesVect' ) {
         dim[0] = v.length;
       } else if (typeOfValue === 'valuesMatrix' ) {
@@ -172,33 +192,37 @@ export class manageValues {
   /*
     Computes an array with each structure dimensions based on the provided value.
   */
-  getValueDimensions(value) {
+  getValueDimensions(value, node?) {
     let dimensionsArray = null;
     if (value) {
-      if (this.currentNode && this.currentNode instanceof  Matrix) {
+      let currentNode = this.currentNode;
+      if (node != null) {
+        currentNode = node;
+      }
+      if (currentNode && currentNode instanceof  Matrix) {
         dimensionsArray = new Array();
         /*
           The dimensions attribute may be undefined.
           In that case, create a dimension array of size 1.
          */
-        let typeOfValue = this.getTypeOfValue();
-        if (!this.currentNode.dimensions) {
-          this.currentNode.dimensions = new Array();
-          this.currentNode.dimensions.push({size: 1});
+        let typeOfValue = this.getTypeOfValue(node);
+        if (!currentNode.dimensions) {
+          currentNode.dimensions = new Array();
+          currentNode.dimensions.push({size: 1});
         }
         /*
           If a scalar has a dimensions attribute, destroy it.
           This use case is mainly possible when transforming a vector into a scalar.
         */
         if (typeOfValue == 'value') {
-          if (this.currentNode.dimensions) {
-            delete this.currentNode.dimensions;
+          if (currentNode.dimensions) {
+            delete currentNode.dimensions;
           }
         }
-        if (this.currentNode.dimensions) {
-          const dimensionsCount = this.currentNode.dimensions.length;
+        if (currentNode.dimensions) {
+          const dimensionsCount = currentNode.dimensions.length;
           for (let iter = 0; iter < dimensionsCount; iter++) {
-            let dimension = this.getValueDim(iter+1, value);
+            let dimension = this.getValueDim(iter+1, value, node);
             if (dimension) {
               dimensionsArray.push(dimension)
             }

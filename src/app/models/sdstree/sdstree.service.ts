@@ -39,6 +39,7 @@ export class SdstreeService {
   private contentValueInstance = null; // Content value component instance
   private pendingData = null;
   private resolvedDataIdx = 0;
+  private scaledMatrixArray = null;
 
   // By default SDS begin by loading the tutorial
   constructor() {
@@ -109,6 +110,30 @@ export class SdstreeService {
       }
     }
     return null
+  }
+
+  /* Gets the node matching the provided name in a nodes list. */
+  getNodeByName(nodes, nodeName) {
+    for(let i = 0; i < nodes.length; i++) {
+      let node = nodes[i];
+      if (node.text == nodeName) {
+        return node;
+      }
+      if (node.items) {
+        let subelemnt = this.getNodeByName(node.items, nodeName);
+        if (subelemnt) {
+          return subelemnt;
+        }
+      }
+    }
+    return null
+  }
+
+  addNodeIcon(nodeName: string, iconName: string) {
+    let node = this.getNodeByName(this.navtree, nodeName);
+    if (node) {
+      this.treeViewInstance.addIcon(node, iconName);
+    }
   }
 
   /*
@@ -429,6 +454,27 @@ export class SdstreeService {
   }
 
   /*
+    Gets a node descriptor by its path in the SDS tree.
+  */
+  getNodeDescByPath(nodePath) {
+    let node = null;
+    if (!nodePath) {
+      return null;
+    }
+    if (this.mapMatrix) {
+      for (let entry of this.mapMatrix.entries()) {
+        let key = entry[0];
+        let value = entry[1];
+        if (key == nodePath) {
+          node = value;
+          break;
+        }
+      }
+    }
+    return node;
+  }
+
+  /*
     Checks if there is no more than one reference in the
     ZIP files matching the provided name.
     It so the entry name is returned. Else, null is returned.
@@ -550,6 +596,11 @@ export class SdstreeService {
                     let scale = dimensions[iterDim].scale;
                     if (scale && scale.includes(currentScalePath)) {
                       dimensions[iterDim].scale = scale.replace(currentScalePath, newScalePath);
+                      /*
+                        Add an icon on the tree view to warn the user that
+                        something has changed in the matrix node.
+                      */
+                      this.addNodeIcon(matrix.name, "warning");
                     }
                   }
                 }
@@ -559,6 +610,52 @@ export class SdstreeService {
         }
       }
     }
+  }
+
+  getScaledMatrixRefs(scalePath, parent?) {
+    if (scalePath) {
+      if (!parent) {
+        parent = this.sds;
+        this.scaledMatrixArray = new Array();
+      }
+      let groups = parent.groups;
+      if (groups) {
+        for (let iter = 0; iter < groups.length; iter++) {
+          let group = groups[iter];
+          if (group) {
+            let subgroup = group.groups;
+            if (subgroup) {
+              let scaledMatrix = this.getScaledMatrixRefs(scalePath, group);
+              if (scaledMatrix && scaledMatrix.length > 0) {
+                console.error(scaledMatrix)
+              }
+            }
+          }
+          let matrixes = group.matrices;
+          if (matrixes) {
+            for (let iter = 0; iter < matrixes.length; iter++) {
+              let matrix = matrixes[iter];
+              if (matrix) {
+                let dimensions = matrix.dimensions;
+                if (dimensions) {
+                  for (let iterDim = 0; iterDim < dimensions.length; iterDim++) {
+                    let scale = dimensions[iterDim].scale;
+                    if (scale && scale == scalePath) {
+                      this.scaledMatrixArray.push(matrix);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return this.scaledMatrixArray;
+  }
+
+  getRootNodePath() {
+    return this.getNodePath("", this.sds.name);
   }
 
   /*
@@ -571,7 +668,7 @@ export class SdstreeService {
       /* Get the path of node */
       let nodePath = this.getNodePath("", currentNodeName);
       if (nodePath) {
-        let rootPath = this.getNodePath("", this.sds.name);
+        let rootPath = this.getRootNodePath();
         if (rootPath) {
           /*
             Compute the current scale path by
@@ -873,9 +970,16 @@ export class SdstreeService {
     let res: number[];
     assert(i === 0 || i === 1);
     assert(this.hasDecoup());
-    res = this.curNode.getCurrentNodeJsonDecoupValue(i) ;
+    res = this.curNode.getCurrentNodeJsonDecoupValue(i);
     return res;
   }
+
+  setDecoup(i: number, value) {
+    assert(i === 0 || i === 1);
+    assert(this.hasDecoup());
+    this.curNode.setCurrentNodeJsonDecoupValue(i, value);
+  }
+
   // display current Node in the properties dialog
   getCurrentNodeProperties(): Properties {
     this.prop = new Properties();
@@ -986,9 +1090,9 @@ export class SdstreeService {
   }
 
   // display service of the value of the current node
-  getCurrentValue(i0?: number , j0?: number): number[][]  {
+  getCurrentValue(i0?: number , j0?: number, node?): number[][]  {
     if (this.curValue) {
-        return this.curValue.getCurrentValue(i0, j0);
+        return this.curValue.getCurrentValue(i0, j0, node);
     } else {
         return [];
     }
@@ -997,9 +1101,10 @@ export class SdstreeService {
   /*
     Updates the current node value.
   */
-  setCurrentValue(value, i0?: number , j0?: number) {
-    if (this.curValue) {
-      this.curValue.setCurrentValue(value, i0, j0);
+  setCurrentValue(value, i0?: number , j0?: number, node?) {
+    let curValue = this.curValue;
+    if (curValue) {
+      curValue.setCurrentValue(value, i0, j0, node);
       /*
         Update the SDS data model.
       */

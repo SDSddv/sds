@@ -28,9 +28,29 @@ export class NavtreeComponent implements OnInit {
   ngOnInit() {
   }
 
+  /*
+    Adds an icon to the provided node.
+  */
+  addIcon(node, icon) {
+    if (node) {
+      node.icon = icon;
+    }
+  }
+
+  /*
+    Removes any previously set node icon.
+  */
+  removeIcon(node) {
+    if (node && node.icon) {
+      delete node.icon;
+    }
+  }
+
   selectItem(e) {
-      // console.log('in navtree.component ' +  e.itemData.text);
-      this.sdsService.setCurrentNode(e.itemData.id);
+    /* Remove the icon (if any) when selecting a node. */
+    this.removeIcon(e.itemData);
+    // console.log('in navtree.component ' +  e.itemData.text);
+    this.sdsService.setCurrentNode(e.itemData.id);
   }
 
   /* Refreshes the whole tree view widget. */

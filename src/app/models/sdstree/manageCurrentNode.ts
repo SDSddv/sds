@@ -81,6 +81,14 @@ export class manageCurrentNode {
     return res;
   }
 
+  setCurrentNodeJsonDecoupValue(i: number, value)  {
+    if (value && this.currentNodeJsonDecoupValue) {
+      if (i <= this.currentNodeJsonDecoupValue.length) {
+        this.currentNodeJsonDecoupValue[i] = value;
+      }
+    }
+  }
+
   // when the user select a node tree in the GUI
   // update the CurrentNode object loading
   // the SDStree Node
