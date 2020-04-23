@@ -162,11 +162,11 @@ export class ContentvalueComponent implements OnInit {
               columns[iter].caption = verticalCaption + " / " + horizontalCaption;
             }
             else {
-              columns[iter].caption = "Row Id / Column ID";
+              columns[iter].caption = "Row ID / Column ID";
             }
           }
           else {
-            columns[iter].caption = "Row Id / Column ID";
+            columns[iter].caption = "Row ID / Column ID";
           }
           columns[iter].allowEditing = false;
         }
