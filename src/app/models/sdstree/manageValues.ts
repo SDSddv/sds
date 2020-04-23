@@ -180,8 +180,8 @@ export class manageValues {
       } else if (typeOfValue === 'valuesHyperCube' ) {
         dim[0] = v[0][0][0].length;
         dim[1] = v[0][0].length;
-        dim[2] = v[0].length;
-        dim[3] = v.length;
+        dim[2] = v.length;
+        dim[3] = v[0].length;
       }
     }
     // console.log('in getValueDim return =' + dim[i - 1]  );
