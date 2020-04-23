@@ -92,7 +92,7 @@ export const Tuto: Sdstree = {
         type : 'float' , unit : '',
         dimensions : [{size : 2}, {size : 2}],
         variants : [{name: '/Mat0/MatrixS', comment: 'alternate'},
-          {name: '', comment: 'backup'}] ,
+          {name: '/Mat1/MatrixS', comment: 'backup'}] ,
         values : [[8.0, 2.7], [4.7, 5.7]] },
       ]
     }
