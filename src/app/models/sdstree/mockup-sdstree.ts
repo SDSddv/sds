@@ -83,7 +83,7 @@ export const Tuto: Sdstree = {
     },
     {name: 'HypCube0' , comment: 'Group Hyper Cube Examples',
      matrices : [
-      {name : 'CubeS', comment : 'Small Hyper Cube with direct values',
+      {name : 'HypCubeS', comment : 'Small Hyper Cube with direct values',
         type : 'float' , unit : '',
         dimensions : [{size : 2}, {size : 2}, {size : 2}, {size : 2}],
         values : [[[[1.111, 1.112], [1.121, 1.122]],
