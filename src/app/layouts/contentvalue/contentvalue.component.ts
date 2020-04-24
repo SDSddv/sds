@@ -326,7 +326,7 @@ export class ContentvalueComponent implements OnInit {
   /*
     Computes a cell value from its neighbours values.
   */
-  computeCellValueFromNeighbours(position, data) {
+  computeColumnCellValueFromNeighbours(position, data) {
     if (!data) {
       return null;
     }
@@ -384,10 +384,35 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Creates/deletes data at the provided position according to the provided operation kind and
+    Extracts the useful data from the provided data array.
+    This is done by skipping the first column of each row of the provided data array.
+  */
+  extractUsefulData(data) {
+    let usefulData = null;
+    if (data) {
+      usefulData = new Array();
+      for (let rowIter = 0; rowIter < data.length; rowIter++) {
+        let rowItems = data[rowIter]
+        if (rowItems != null) {
+          usefulData[rowIter] = new Array();
+          /* Skip the first column by iterating from 1. */
+          for (let colIter = 1; colIter < rowItems.length; colIter++) {
+            let colItem = rowItems[colIter];
+            if (colItem != null) {
+              usefulData[rowIter].push(colItem)
+            }
+          }
+        }
+      }
+    }
+    return usefulData;
+  }
+
+  /*
+    Creates/deletes column data at the provided position according to the provided operation kind and
     updates the SDS tree values and properties accordingly.
   */
-  setData(position: number, operation: operationKind, node?) {
+  setColumnData(position: number, operation: operationKind, node?) {
     let data = null;
     let currentNode = this.sdsService.getCurrentNode();
     if(node != null) {
@@ -402,7 +427,7 @@ export class ContentvalueComponent implements OnInit {
             for (let iterX = 0; iterX < data.length; iterX++) {
               let item = data[iterX];
               if (item) {
-                let cellValue = this.computeCellValueFromNeighbours(position, item);
+                let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
                 if (cellValue == null) {
                   // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
                   cellValue = 0;
@@ -415,20 +440,7 @@ export class ContentvalueComponent implements OnInit {
                 }
               }
             }
-            let newItems = new Array();
-            for (let rowIter = 0; rowIter < data.length; rowIter++) {
-              let rowItems = data[rowIter]
-              if (rowItems != null) {
-                newItems[rowIter] = new Array();
-                /* Skip the first column by iterating from 1. */
-                for (let colIter = 1; colIter < rowItems.length; colIter++) {
-                  let colItem = rowItems[colIter];
-                  if (colItem != null) {
-                    newItems[rowIter].push(colItem)
-                  }
-                }
-              }
-            }
+            let newItems = this.extractUsefulData(data);
             /* Update the modified content in the SDS. */
             this.sdsService.setCurrentValue(newItems, iter, (this.j0 - 1), node);
           }
@@ -442,7 +454,7 @@ export class ContentvalueComponent implements OnInit {
               for (let iterX = 0; iterX < data.length; iterX++) {
                 let item = data[iterX];
                 if (item) {
-                  let cellValue = this.computeCellValueFromNeighbours(position, item);
+                  let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
                   if (cellValue == null) {
                     // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
                     cellValue = 0;
@@ -455,20 +467,7 @@ export class ContentvalueComponent implements OnInit {
                   }
                 }
               }
-              let newItems = new Array();
-              for (let rowIter = 0; rowIter < data.length; rowIter++) {
-                let rowItems = data[rowIter]
-                if (rowItems != null) {
-                  newItems[rowIter] = new Array();
-                  /* Skip the first column by iterating from 1. */
-                  for (let colIter = 1; colIter < rowItems.length; colIter++) {
-                    let colItem = rowItems[colIter];
-                    if (colItem != null) {
-                      newItems[rowIter].push(colItem)
-                    }
-                  }
-                }
-              }
+              let newItems = this.extractUsefulData(data);
               /* Update the modified content in the SDS. */
               this.sdsService.setCurrentValue(newItems, iter, iter2, node);
             }
@@ -481,7 +480,7 @@ export class ContentvalueComponent implements OnInit {
           for (let iterX = 0; iterX < data.length; iterX++) {
             let item = data[iterX];
             if (item) {
-              let cellValue = this.computeCellValueFromNeighbours(position, item);
+              let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
               if (cellValue == null) {
                 // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
                 cellValue = 0;
@@ -494,20 +493,7 @@ export class ContentvalueComponent implements OnInit {
               }
             }
           }
-          let newItems = new Array();
-          for (let rowIter = 0; rowIter < data.length; rowIter++) {
-            let rowItems = data[rowIter]
-            if (rowItems != null) {
-              newItems[rowIter] = new Array();
-              /* Skip the first column by iterating from 1. */
-              for (let colIter = 1; colIter < rowItems.length; colIter++) {
-                let colItem = rowItems[colIter];
-                if (colItem != null) {
-                  newItems[rowIter].push(colItem)
-                }
-              }
-            }
-          }
+          let newItems = this.extractUsefulData(data);
           /* Update the modified content in the SDS. */
           this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1), node);
         }
@@ -524,9 +510,9 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Creates/deletes data at the provided position in the scales nodes (if any) associated to the current node.
+    Creates/deletes column data at the provided position in the scales nodes (if any) associated to the current node.
   */
-  setScalesNodeData(position: number, operation: operationKind, direction: operationDirection) {
+  setColumnScalesNodeData(position: number, operation: operationKind, direction: operationDirection) {
     let currentNode = this.sdsService.getCurrentNode();
     if (currentNode instanceof Matrix) {
       let dimensions = currentNode.dimensions;
@@ -547,7 +533,7 @@ export class ContentvalueComponent implements OnInit {
         if (scalePath) {
           let node = this.sdsService.getNodeDescByPath(scalePath);
           if (node) {
-            this.setData(position, operation, node);
+            this.setColumnData(position, operation, node);
             let scaleData = this.getData(this.i0, this.j0, true, node);
             if (scaleData && scaleData instanceof Array) {
               if (scaleData[0] && scaleData[0] instanceof Array) {
@@ -575,9 +561,9 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Creates/deletes data in a matrix node that references a scale vector at the provided position.
+    Creates/deletes column data in a matrix node that references a scale vector at the provided position.
   */
-  setMatrixesNodeData(position: number, operation: operationKind, direction: operationDirection) {
+  setColumnMatrixesNodeData(position: number, operation: operationKind, direction: operationDirection) {
     let currentNode = this.sdsService.getCurrentNode();
     if (currentNode) {
       let nodePath = this.sdsService.getNodePath("", currentNode.name);
@@ -588,7 +574,7 @@ export class ContentvalueComponent implements OnInit {
         for (let iter = 0; iter < matrixRefs.length; iter++) {
           let matrixRef = matrixRefs[iter];
           if (matrixRef) {
-            this.setData(position, operation, matrixRef);
+            this.setColumnData(position, operation, matrixRef);
             this.sdsService.addNodeIcon(matrixRef.name, "warning");
           }
         }
@@ -596,11 +582,11 @@ export class ContentvalueComponent implements OnInit {
     }
   }
 
-  /* Creates/deletes data for the current node references in the SDS tree. */
-  setNodeRefsData(position: number, operation: operationKind, direction: operationDirection) {
-    /* Update the scales nodes data. */
-    this.setScalesNodeData(position, operation, direction);
-    this.setMatrixesNodeData(position, operation, direction);
+  /* Creates/deletes column data for the current node references in the SDS tree. */
+  setColumnNodeRefsData(position: number, operation: operationKind, direction: operationDirection) {
+    /* Update the scales nodes column data. */
+    this.setColumnScalesNodeData(position, operation, direction);
+    this.setColumnMatrixesNodeData(position, operation, direction);
   }
 
   /*
@@ -610,8 +596,8 @@ export class ContentvalueComponent implements OnInit {
     let operation = operationKind.AddData;
     let direction = operationDirection.Column;
     console.log("Adding new column at position: " + position)
-    this.setData(position, operation);
-    this.setNodeRefsData(position, operation, direction);
+    this.setColumnData(position, operation);
+    this.setColumnNodeRefsData(position, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
@@ -622,8 +608,8 @@ export class ContentvalueComponent implements OnInit {
     let operation = operationKind.DeleteData;
     let direction = operationDirection.Column;
     console.log("Deleting column at position: " + position)
-    this.setData(position, operation);
-    this.setNodeRefsData(position, operation, direction);
+    this.setColumnData(position, operation);
+    this.setColumnNodeRefsData(position, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
