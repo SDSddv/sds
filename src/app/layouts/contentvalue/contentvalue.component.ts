@@ -283,32 +283,6 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Row creation handler.
-  */
-  onAddRow(position) {
-    console.log("Adding new row at position: " + position)
-    let data = this.getData(this.i0, this.j0, true);
-    if (data) {
-      let item = data[position-1];
-      let itemId = item[0];
-      let itemLen = item.length;
-      let newData = new Array();
-      for (let iter = 0; iter < itemLen; iter++) {
-        if (iter == 0) {
-          let id = +itemId;
-          id++;
-          newData.push(""+id);
-        }
-        else {
-          newData.push("");
-        }
-      }
-      data.splice(position, 0, newData);
-      this.dataGrid.instance.refresh();
-    }
-  }
-
-  /*
     Linear interpolation/extrapolation between two values.
     If the distance exactly equals to 0, the first value is returned.
     If the distance exactly equals to 1, the second value is returned.
@@ -359,6 +333,70 @@ export class ContentvalueComponent implements OnInit {
       distance = 2;
     }
     else if (position == 1) {
+      distance = -1;
+    }
+    let lerpValue = this.lerp(value1, value2, distance);
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode && currentNode instanceof Matrix) {
+      let type = currentNode.type;
+      /* For booleans && integers keep the decimal part of the lerp computation. */
+      if ((type == 'boolean') ||
+          (type == 'integer')) {
+        lerpValue = Math.floor(lerpValue);
+        /*
+          Manage the lerp overflows for booleans by setting the value to 0.
+        */
+        if (type == 'boolean') {
+          if ((lerpValue < 0) ||
+              (lerpValue > 1)) {
+                lerpValue = 0;
+          }
+        }
+      }
+    }
+    return lerpValue;
+  }
+
+  /*
+    Computes a row cell value from its neighbours values.
+  */
+  computeRowCellValueFromNeighbours(rowPosition, colPosition, data) {
+    if (!data) {
+      return null;
+    }
+    /*
+      If the data,array only contains a value,
+      we are not able to perform a linear interpolation/extrapolation
+      between two points.
+    */
+    if (data.length < 2) {
+      return null;
+    }
+    let value1Position = rowPosition-1;
+    if (rowPosition >= data.length) {
+      value1Position = rowPosition-2;
+    }
+    else if (rowPosition == 0) {
+      value1Position = rowPosition;
+    }
+    let row1 = data[value1Position];
+    let value1 = row1[colPosition];
+
+    let value2Position = rowPosition;
+    if (rowPosition >= data.length) {
+      value2Position = rowPosition-1;
+    }
+    else if (rowPosition == 0) {
+      value2Position = rowPosition+1;
+    }
+    let row2 = data[value2Position];
+    let value2 = row2[colPosition];
+
+    let distance = 0.5;
+    if (rowPosition >= data.length) {
+      distance = 2;
+    }
+    else if (rowPosition == 0) {
       distance = -1;
     }
     let lerpValue = this.lerp(value1, value2, distance);
@@ -614,14 +652,153 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Creates/deletes row data at the provided position according to the provided operation kind and
+    updates the SDS tree values and properties accordingly.
+  */
+  setRowData(position: number, operation: operationKind, node?) {
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode instanceof Matrix) {
+      let valueType = this.getValueType();
+      if (valueType == "valuesCube") {
+        for (let iter = 0; iter < this.dimI; iter++) {
+          let data = this.getData(iter+1, this.j0, true);
+          if (data) {
+            let pos = position-1;
+            if (!position) {
+              pos = position;
+            }
+            let item = data[pos];
+            let itemId = item[0];
+            let itemLen = item.length;
+            let newData = new Array();
+            for (let iterX = 0; iterX < itemLen; iterX++) {
+              if (iterX == 0) {
+                let id = +itemId;
+                id++;
+                newData.push(""+id);
+              }
+              else {
+                let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
+                if (cellValue == null) {
+                  // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                  cellValue = 0;
+                }
+                newData.push(cellValue);
+              }
+            }
+            if (operation == operationKind.AddData) {
+              data.splice(position, 0, newData);
+            }
+            else {
+              data.splice(position, 1);
+            }
+            let newItems = this.extractUsefulData(data);
+            /* Update the modified content in the SDS. */
+            this.sdsService.setCurrentValue(newItems, iter, (this.j0 - 1));
+          }
+        }
+      }
+      else if (valueType == "valuesHyperCube") {
+        for (let iter = 0; iter < this.dimI; iter++) {
+          for (let iter2 = 0; iter2 < this.dimJ; iter2++) {
+            let data = this.getData(iter+1, iter2+1, true);
+            if (data) {
+              let pos = position-1;
+              if (!position) {
+                pos = position;
+              }
+              let item = data[pos];
+              let itemId = item[0];
+              let itemLen = item.length;
+              let newData = new Array();
+              for (let iterX = 0; iterX < itemLen; iterX++) {
+                if (iterX == 0) {
+                  let id = +itemId;
+                  id++;
+                  newData.push(""+id);
+                }
+                else {
+                  let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
+                  if (cellValue == null) {
+                    // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                    cellValue = 0;
+                  }
+                  newData.push(cellValue);
+                }
+              }
+              if (operation == operationKind.AddData) {
+                data.splice(position, 0, newData);
+              }
+              else {
+                data.splice(position, 1);
+              }
+              let newItems = this.extractUsefulData(data);
+              /* Update the modified content in the SDS. */
+              this.sdsService.setCurrentValue(newItems, iter, iter2);
+            }
+          }
+        }
+      }
+      else {
+        let data = this.getData(this.i0, this.j0, true);
+        if (data) {
+          let pos = position-1;
+          if (!position) {
+            pos = position;
+          }
+          let item = data[pos];
+          let itemId = item[0];
+          let itemLen = item.length;
+          let newData = new Array();
+          for (let iterX = 0; iterX < itemLen; iterX++) {
+            if (iterX == 0) {
+              let id = +itemId;
+              id++;
+              newData.push(""+id);
+            }
+            else {
+              let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
+              if (cellValue == null) {
+                // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                cellValue = 0;
+              }
+              newData.push(cellValue);
+            }
+          }
+          if (operation == operationKind.AddData) {
+            data.splice(position, 0, newData);
+          }
+          else {
+            data.splice(position, 1);
+          }
+          let newItems = this.extractUsefulData(data);
+          /* Update the modified content in the SDS. */
+          this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1));
+        }
+      }
+      /* Get data again to force to recompute first columns of each row. */
+      this.getData(this.i0, this.j0, true);
+    }
+  }
+
+  /*
+    Row creation handler.
+  */
+  onAddRow(position) {
+    let operation = operationKind.AddData;
+    console.log("Adding new row at position: " + position)
+    this.setRowData(position, operation);
+    this.dataGrid.instance.refresh();
+  }
+
+  /*
     Row deletion handler.
   */
   onDeleteRow(position) {
+    let operation = operationKind.DeleteData;
     console.log("Deleting row at position: " + position)
-    let data = this.getData(this.i0, this.j0, true);
-    if (data) {
-      this.dataGrid.instance.refresh();
-    }
+    this.setRowData(position, operation);
+    this.dataGrid.instance.refresh();
   }
 
   /*
@@ -662,10 +839,24 @@ export class ContentvalueComponent implements OnInit {
             onClick: this.onAddColumn.bind(this, (e.columnIndex + 1))
           }
         );
+        /*
+          On the first column element of the header,
+          the user has also the ability to add a new row.
+        */
+        if (e.columnIndex == 0) {
+          items.unshift(
+            {
+              text: 'Insert row after',
+              icon: 'add',
+              onClick: this.onAddRow.bind(this, (e.rowIndex))
+            }
+          );
+        }
       }
       else {
         /* Right click was done on a row. */
-        if (e.rowIndex != 0) {
+        /* Deleting a row is not allowed when the data only contains one row. */
+        if (dataItems && (dataItems.length >= 2)) {
           /* Delete the first row is not allowed. */
           items.unshift(
             {
