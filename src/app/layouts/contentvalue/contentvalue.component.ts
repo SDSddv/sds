@@ -203,6 +203,26 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Cell rendering handler.
+  */
+  onCellPrepared(e) {
+    let backgroundColor = "#f5f5f5"; // Devextreme light grey
+    /* Change the background color of the columns headers. */
+    if (e.rowType == "header") {
+      e.cellElement.style.backgroundColor = backgroundColor;
+      if (e.columnIndex == 0) {
+//        e.cellElement.style.fontWeight = "bold";
+      }
+    }
+    else if (e.rowType == "data") {
+    /* Change the background color of the first column of the data cells. */
+    if (e.columnIndex == 0) {
+        e.cellElement.style.backgroundColor = backgroundColor;
+      }
+    }
+  }
+
+  /*
     Cell edition start handler.
   */
   onEditingStart(e) {

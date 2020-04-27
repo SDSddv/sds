@@ -1,5 +1,5 @@
 <div class="dx-fieldset" style="margin-left:0;margin-right:0;margin-bottom:0;" *ngIf="hasValues()">
-  <div class="dx-fieldset-header">Value</div>
+  <div class="dx-fieldset-header" style="font-weight: bold; font-size: x-large;">Value</div>
   <div *ngIf="getValueType() === 'valuesCube'" >
     <label for="#i0">(i,j,</label>
     <input type="number" id="#i0"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
@@ -17,7 +17,10 @@
     [dataSource]="getData(i0, j0)"
     [customizeColumns]="customizeColumns"
     [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
     [loadPanel]="loadPanelProps"
+    (onCellPrepared)="onCellPrepared($event)"
     (onEditingStart)="onEditingStart($event)"
     (onContentReady)="onContentReady($event)"
     (onContextMenuPreparing)="onContextMenuPreparing($event)">
