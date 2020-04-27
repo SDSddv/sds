@@ -824,6 +824,8 @@ export class SdstreeService {
     this.nv = new transformSdsTreeToNavTree(this.sds);
     this.navtree = this.nv.navtree;
     this.mapMatrix = this.nv.mapMatrix;
+    /* Select the SDS root node when the JSON index has been loaded. */
+    this.setCurrentNode('d0');
   }
 
   getMatrixName(matrixPath) {
