@@ -18,6 +18,40 @@ export const Tuto: Sdstree = {
         type : 'float' , unit : 'mol**-1', values : 6.02214e+23 }
       ]
     },
+    {
+      name: 'BooleansGroup' , comment: 'Group for booleans',
+      matrices : [
+        {
+          name : 'Vect1',
+          comment : 'Boolean vector',
+          type : 'boolean',
+          unit : 'x',
+          dimensions : [{size : 6}],
+          values : [true, false, true, false, true, false]
+        }
+      ]
+    },
+    {
+      name: 'IntegerGroup' , comment: 'Group for integers',
+      matrices : [
+        {
+          name : 'Vect2',
+          comment : 'Signed integers vector',
+          type : 'integer',
+          unit : 'm',
+          dimensions : [{size : 6}],
+          values : [-1, -2, -3, -4, -5, -6]
+        },
+        {
+          name : 'Vect3',
+          comment : 'Unsigned integers vector',
+          type : 'integer',
+          unit : 's',
+          dimensions : [{size : 6}],
+          values : [1, 2, 3, 4, 5, 6]
+        }
+      ]
+    },
     {name: 'Vect0' , comment: ' Group Vector with values in the sds root file',
      matrices : [
       {name : 'Mach', comment : 'Mach',
@@ -49,7 +83,7 @@ export const Tuto: Sdstree = {
         dimensions : [{size : 2}, {size : 2}],
         values : [[7.0, 1.7] , [3.7, 4.7]] },
        {name : 'MatrixF',
-         comment : 'Average Matrix with scales and values in files',
+         comment : 'Average Matrix with scales',
          type : 'float' , unit : '',
          dimensions : [
            {size : 4, scale: '/VectF/MachF'},

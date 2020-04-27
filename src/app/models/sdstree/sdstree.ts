@@ -17,7 +17,7 @@ export class Sdstree extends SDSNode { // Dico
 }
 
 export const  sdtreeVide : Sdstree = {
-  name: 'rename Dico' ,
+  name: 'Rename SDS' ,
   comment: 'Please comment',
   history : {
 		'tool': 'SDSGui',
@@ -25,10 +25,17 @@ export const  sdtreeVide : Sdstree = {
 		'date': ''
 	},
   groups : [
-    {name: 'rename first group' , comment: 'Please comment',
-     matrices : [
-      {name : 'g', comment : 'gravity acceleration',
-        type : 'float' , unit : 'm*(s**-2)', values : 9.80665 }
+    {
+      name: 'Rename first group',
+      comment: 'Please comment',
+      matrices : [
+        {
+            name : 'g',
+            comment : 'gravity acceleration',
+            type : 'float',
+            unit : 'm*(s**-2)',
+            values : 9.80665
+        }
       ]
     }
   ]
