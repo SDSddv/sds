@@ -15,6 +15,7 @@ export class ContentpropComponent implements OnInit {
   prop: Properties;
   private groupItem = null;
   private currentNode = null;
+  private isFormValid = true;
 
   allowedDataTypes: string[] = [
     "boolean",
@@ -26,6 +27,7 @@ export class ContentpropComponent implements OnInit {
     this.sdsService.setContentPropInstance(this);
     this.getProperties();
     this.setCurrentNode(this.sdsService.getCurrentNode());
+    this.validationCallback = this.validationCallback.bind(this);
   }
 
   ngOnInit() {
@@ -37,6 +39,19 @@ export class ContentpropComponent implements OnInit {
 
   getCurrentNode() {
     return this.currentNode;
+  }
+
+  /*
+    Form data validation handler.
+  */
+  validationCallback(e) {
+    if (e.value) {
+      this.isFormValid = true;
+    }
+    else if (!e.value || e.value == " ") {
+      this.isFormValid = false;
+    }
+    return this.isFormValid;
   }
 
   /*
@@ -298,13 +313,13 @@ export class ContentpropComponent implements OnInit {
     Form submit handler.
   */
   onFormSubmit = function(e) {
-    let hasFailed = false;
+    let hasFailed = !this.isFormValid;
     if (e) {
       /*
         The user has submitted the form.
       */
       let target = e.target;
-      if (target) {
+      if (!hasFailed && target) {
         let elements = target.elements;
         let elementsMap = this.getFormData(elements);
         if (elementsMap) {
@@ -319,7 +334,7 @@ export class ContentpropComponent implements OnInit {
       */
       let propertiesForm = null;
       let forms = document.forms;
-      if (forms && forms.length > 0) {
+      if (!hasFailed && forms && forms.length > 0) {
         for (let iter = 0; iter < forms.length; iter++) {
           propertiesForm = forms[iter];
           /* Search for the "propertiesForm" id. */
@@ -347,7 +362,7 @@ export class ContentpropComponent implements OnInit {
       // TODO: Add a detailed explanation about the failure.
       notificationType = "error";
       notificationMessage = "Failed to submit data";
-      notificationDurationMsec = 3000;
+      notificationDurationMsec = 500;
     }
     let notificationOptions = { message: notificationMessage, width: 500, shading: true };
     notify(notificationOptions, notificationType, notificationDurationMsec);
