@@ -648,7 +648,7 @@ export class SdstreeService {
                   for (let iterDim = 0; iterDim < dimensions.length; iterDim++) {
                     let scale = dimensions[iterDim].scale;
                     if (scale && scale == scalePath) {
-                      this.scaledMatrixArray.push(matrix);
+                      this.scaledMatrixArray.push({dataStructure: matrix, index: iterDim});
                     }
                   }
                 }

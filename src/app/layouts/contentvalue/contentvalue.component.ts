@@ -548,9 +548,9 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Creates/deletes column data at the provided position in the scales nodes (if any) associated to the current node.
+    Creates/deletes data at the provided position in the scales nodes (if any) associated to the current node.
   */
-  setColumnScalesNodeData(position: number, operation: operationKind, direction: operationDirection) {
+  setScalesNodeData(position: number, operation: operationKind, direction: operationDirection) {
     let currentNode = this.sdsService.getCurrentNode();
     if (currentNode instanceof Matrix) {
       let dimensions = currentNode.dimensions;
@@ -599,9 +599,9 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
-    Creates/deletes column data in a matrix node that references a scale vector at the provided position.
+    Creates/deletes data in a matrix node that references a scale vector at the provided position.
   */
-  setColumnMatrixesNodeData(position: number, operation: operationKind, direction: operationDirection) {
+  setMatrixesNodeData(position: number, operation: operationKind, direction: operationDirection) {
     let currentNode = this.sdsService.getCurrentNode();
     if (currentNode) {
       let nodePath = this.sdsService.getNodePath("", currentNode.name);
@@ -612,19 +612,30 @@ export class ContentvalueComponent implements OnInit {
         for (let iter = 0; iter < matrixRefs.length; iter++) {
           let matrixRef = matrixRefs[iter];
           if (matrixRef) {
-            this.setColumnData(position, operation, matrixRef);
-            this.sdsService.addNodeIcon(matrixRef.name, "warning");
+            let refIndex = matrixRef.index;
+            /*
+              If the index is 0 (i.e dimensions[0].scale attribute we manipulate the columns of the scaled matrix.
+              If the index is 1 (i.e dimensions[1].scale attribute we manipulate the rows of the scaled matrix.
+            */
+            if (refIndex == 0) {
+              this.setColumnData(position, operation, matrixRef.dataStructure);
+            }
+            else if (refIndex == 1) {
+              this.setRowData(position-1, operation, matrixRef.dataStructure);
+            }
+            this.sdsService.addNodeIcon(matrixRef.dataStructure.name, "warning");
           }
         }
       }
     }
   }
 
-  /* Creates/deletes column data for the current node references in the SDS tree. */
-  setColumnNodeRefsData(position: number, operation: operationKind, direction: operationDirection) {
-    /* Update the scales nodes column data. */
-    this.setColumnScalesNodeData(position, operation, direction);
-    this.setColumnMatrixesNodeData(position, operation, direction);
+  /* Creates/deletes data for the current node references in the SDS tree. */
+  setNodeRefsData(position: number, operation: operationKind, direction: operationDirection) {
+    /* Update the scales nodes data. */
+    this.setScalesNodeData(position, operation, direction);
+    /* Update the nodes data that references a scale. */
+    this.setMatrixesNodeData(position, operation, direction);
   }
 
   /*
@@ -635,7 +646,7 @@ export class ContentvalueComponent implements OnInit {
     let direction = operationDirection.Column;
     console.log("Adding new column at position: " + position)
     this.setColumnData(position, operation);
-    this.setColumnNodeRefsData(position, operation, direction);
+    this.setNodeRefsData(position, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
@@ -647,7 +658,7 @@ export class ContentvalueComponent implements OnInit {
     let direction = operationDirection.Column;
     console.log("Deleting column at position: " + position)
     this.setColumnData(position, operation);
-    this.setColumnNodeRefsData(position, operation, direction);
+    this.setNodeRefsData(position, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
@@ -661,7 +672,7 @@ export class ContentvalueComponent implements OnInit {
       let valueType = this.getValueType();
       if (valueType == "valuesCube") {
         for (let iter = 0; iter < this.dimI; iter++) {
-          let data = this.getData(iter+1, this.j0, true);
+          let data = this.getData(iter+1, this.j0, true, node);
           if (data) {
             let pos = position-1;
             if (!position) {
@@ -694,14 +705,14 @@ export class ContentvalueComponent implements OnInit {
             }
             let newItems = this.extractUsefulData(data);
             /* Update the modified content in the SDS. */
-            this.sdsService.setCurrentValue(newItems, iter, (this.j0 - 1));
+            this.sdsService.setCurrentValue(newItems, iter, (this.j0 - 1), node);
           }
         }
       }
       else if (valueType == "valuesHyperCube") {
         for (let iter = 0; iter < this.dimI; iter++) {
           for (let iter2 = 0; iter2 < this.dimJ; iter2++) {
-            let data = this.getData(iter+1, iter2+1, true);
+            let data = this.getData(iter+1, iter2+1, true, node);
             if (data) {
               let pos = position-1;
               if (!position) {
@@ -734,13 +745,13 @@ export class ContentvalueComponent implements OnInit {
               }
               let newItems = this.extractUsefulData(data);
               /* Update the modified content in the SDS. */
-              this.sdsService.setCurrentValue(newItems, iter, iter2);
+              this.sdsService.setCurrentValue(newItems, iter, iter2, node);
             }
           }
         }
       }
       else {
-        let data = this.getData(this.i0, this.j0, true);
+        let data = this.getData(this.i0, this.j0, true, node);
         if (data) {
           let pos = position-1;
           if (!position) {
@@ -773,7 +784,7 @@ export class ContentvalueComponent implements OnInit {
           }
           let newItems = this.extractUsefulData(data);
           /* Update the modified content in the SDS. */
-          this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1));
+          this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1), node);
         }
       }
       /* Get data again to force to recompute first columns of each row. */
@@ -786,8 +797,10 @@ export class ContentvalueComponent implements OnInit {
   */
   onAddRow(position) {
     let operation = operationKind.AddData;
+    let direction = operationDirection.Row;
     console.log("Adding new row at position: " + position)
     this.setRowData(position, operation);
+    this.setNodeRefsData(position+1, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
@@ -796,8 +809,10 @@ export class ContentvalueComponent implements OnInit {
   */
   onDeleteRow(position) {
     let operation = operationKind.DeleteData;
+    let direction = operationDirection.Row;
     console.log("Deleting row at position: " + position)
     this.setRowData(position, operation);
+    this.setNodeRefsData(position+1, operation, direction);
     this.dataGrid.instance.refresh();
   }
 
