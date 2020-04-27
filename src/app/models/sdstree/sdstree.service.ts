@@ -53,6 +53,9 @@ export class SdstreeService {
   constructSdtreeTuto() {
     // application memory construction
     this.sds = Tuto;
+    /* Update the date time when loading the mockup SDS tree. */
+    let date: Date = new Date();
+    this.updateDateTime(date);
     // file memory construction
     this.zip = new JSZip();
     this.zip.file('index.json', JSON.stringify(this.sds));
@@ -728,9 +731,28 @@ export class SdstreeService {
     return this.treeViewItem
   }
 
+  /* Updates the SDS history date time according to the provided date object. */
+  updateDateTime(date: Date) {
+    if (date && this.sds.history) {
+      let formattedDay = ('0' + date.getDate()).slice(-2);
+      let formattedMonth = (date.getMonth() < 10 ? "0" : "") + (date.getMonth() + 1);
+      let formattedYear = date.getFullYear().toString().substr(2,2);
+      let formattedHours = (date.getHours() < 10 ? "0" : "") + (date.getHours());
+      let formattedMinutes = (date.getMinutes() < 10 ? "0" : "") + (date.getMinutes());
+      this.sds.history.date = formattedDay + '/' +
+                              formattedMonth + '/' +
+                              formattedYear + ' ' +
+                              formattedHours + ':' +
+                              formattedMinutes;
+    }
+  }
+
   // creating a new empty SDS tree
   constructSdtreeVide() {
     this.sds = sdtreeVide;
+    /* Update the date time when creating a new SDS tree. */
+    let date: Date = new Date();
+    this.updateDateTime(date);
     this.zip = new JSZip();
     this.zip.file('index.json', JSON.stringify(this.sds));
     this.nv = new transformSdsTreeToNavTree(this.sds);

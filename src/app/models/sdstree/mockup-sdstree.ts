@@ -4,7 +4,11 @@ import { valuesMatrix, valuesVect} from './SDSMatrix';
 export const Tuto: Sdstree = {
   name: 'ExempleBase' ,
   comment: 'Dico example with matrix , cube and hypercube',
-  history : 'created the 02/02/20',
+  history : {
+		'tool': 'SDSGui',
+		'user': 'X123456',
+		'date': ''
+	},
   groups : [
     {name: 'CtesUniv' , comment: 'Group Universal constants',
      matrices : [

@@ -135,11 +135,27 @@ export class ContentpropComponent implements OnInit {
         formData["comment"] = comment.value;
       }
     }
-    if (data.hasOwnProperty('history')) {
-      let history:any = data['history'];
-      if (history) {
-        formData["history"] = history.value;
+    /* History node */
+    let tool = null;
+    if (data.hasOwnProperty('tool')) {
+      if (data['tool']) {
+        tool = data['tool'].value;
       }
+    }
+    let user = null;
+    if (data.hasOwnProperty('user')) {
+      if (data['user']) {
+        user = data['user'].value;
+      }
+    }
+    let date = null;
+    if (data.hasOwnProperty('date')) {
+      if (data['date']) {
+        date = data['date'].value;
+      }
+    }
+    if (tool && user && date) {
+      formData["history"] = {tool: tool, user: user, date: date}
     }
     if (data.hasOwnProperty('type')) {
       if (data['type'] instanceof RadioNodeList) {

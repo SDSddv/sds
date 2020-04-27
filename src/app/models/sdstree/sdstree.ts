@@ -1,8 +1,9 @@
 import {SDSNode} from './SDSNode';
 import {Group} from './SDSGroup';
+import {History} from './../../layouts/contentprop/Properties';
 
 export class Sdstree extends SDSNode { // Dico
-  history: string;
+  history: History;
   groups ?: Group[];
 
   constructor() {
@@ -18,7 +19,11 @@ export class Sdstree extends SDSNode { // Dico
 export const  sdtreeVide : Sdstree = {
   name: 'rename Dico' ,
   comment: 'Please comment',
-  history : 'creation',
+  history : {
+		'tool': 'SDSGui',
+		'user': '',
+		'date': ''
+	},
   groups : [
     {name: 'rename first group' , comment: 'Please comment',
      matrices : [

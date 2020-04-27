@@ -18,12 +18,25 @@
           </dx-text-box>
         </div>
     </div>
-    <div class="dx-field" *ngIf="prop.history">
-        <div class="dx-field-label">History</div>
+    <div class="dx-fieldset" style="margin:0;" *ngIf="prop.history">
+      <div class="dx-fieldset-header">History</div>
+      <div class="dx-field" *ngIf="prop.history">
+        <div class="dx-field-label">Tool</div>
         <div class="dx-field-value">
-          <dx-text-box [(value)]=prop.history (onChange)="onChange($event)" [inputAttr]="{name: 'history'}">
+          <dx-text-box [(value)]=prop.history.tool (onChange)="onChange($event)" [inputAttr]="{name: 'tool'}">
           </dx-text-box>
         </div>
+        <div class="dx-field-label">User</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.history.user (onChange)="onChange($event)" [inputAttr]="{name: 'user'}">
+          </dx-text-box>
+        </div>
+        <div class="dx-field-label">Date</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.history.date (onChange)="onChange($event)" [inputAttr]="{name: 'date'}">
+          </dx-text-box>
+        </div>
+      </div>
     </div>
     <div class="dx-field" *ngIf="prop.type">
         <div class="dx-field-label">Type</div>
