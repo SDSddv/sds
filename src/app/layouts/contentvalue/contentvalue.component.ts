@@ -39,7 +39,7 @@ export class ContentvalueComponent implements OnInit {
   decoup1_lig: number[];
   previousNode = null;
   previousData = null;
-  private loadPanelProps: any = {
+  loadPanelProps: any = {
     enabled: true,
     showIndicator: true,
     showPane: true,
