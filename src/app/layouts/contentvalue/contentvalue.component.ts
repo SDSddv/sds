@@ -145,6 +145,8 @@ export class ContentvalueComponent implements OnInit {
       let data = this.getData(this.i0, this.j0);
       for (let iter = 0; iter < columns.length; iter++) {
         if (iter == 0) {
+          /* Fixing the first column width. */
+          columns[iter].width = 150;
           if (!this.scalOrVect) {
             if (this.decoup0_col && this.decoup1_lig) {
               let verticalCaption = this.getDecoupMatrixName(1);

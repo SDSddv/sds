@@ -20,11 +20,16 @@
     [showColumnLines]="true"
     [showRowLines]="true"
     [loadPanel]="loadPanelProps"
+    [columnAutoWidth]="true"
+    [columnMinWidth]="75"
     (onCellPrepared)="onCellPrepared($event)"
     (onEditingStart)="onEditingStart($event)"
     (onContentReady)="onContentReady($event)"
     (onContextMenuPreparing)="onContextMenuPreparing($event)">
-    <dxo-paging [enabled]="true"></dxo-paging>
+    <dxo-scrolling
+      columnRenderingMode="virtual">
+    </dxo-scrolling>
+    <dxo-paging [enabled]="false"></dxo-paging>
     <dxo-editing
          mode="cell"
          [allowUpdating]="true">
