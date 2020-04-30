@@ -283,7 +283,7 @@ export class ContentvalueComponent implements OnInit {
                 */
                 if (currentProperties &&
                     currentProperties.type &&
-                    currentProperties.type == 'boolean') {
+                    currentProperties.type == 'bool') {
                   if (colItem == 1) {
                     colItem = true;
                   }
@@ -362,13 +362,13 @@ export class ContentvalueComponent implements OnInit {
     if (currentNode && currentNode instanceof Matrix) {
       let type = currentNode.type;
       /* For booleans && integers keep the decimal part of the lerp computation. */
-      if ((type == 'boolean') ||
-          (type == 'integer')) {
+      if ((type == 'bool') ||
+          (type == 'int32')) {
         lerpValue = Math.floor(lerpValue);
         /*
           Manage the lerp overflows for booleans by setting the value to 0.
         */
-        if (type == 'boolean') {
+        if (type == 'bool') {
           if ((lerpValue < 0) ||
               (lerpValue > 1)) {
                 lerpValue = 0;
@@ -426,13 +426,13 @@ export class ContentvalueComponent implements OnInit {
     if (currentNode && currentNode instanceof Matrix) {
       let type = currentNode.type;
       /* For booleans && integers keep the decimal part of the lerp computation. */
-      if ((type == 'boolean') ||
-          (type == 'integer')) {
+      if ((type == 'bool') ||
+          (type == 'int32')) {
         lerpValue = Math.floor(lerpValue);
         /*
           Manage the lerp overflows for booleans by setting the value to 0.
         */
-        if (type == 'boolean') {
+        if (type == 'bool') {
           if ((lerpValue < 0) ||
               (lerpValue > 1)) {
                 lerpValue = 0;

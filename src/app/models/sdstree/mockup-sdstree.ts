@@ -13,9 +13,9 @@ export const Tuto: Sdstree = {
     {name: 'CtesUniv' , comment: 'Group Universal constants',
      matrices : [
       {name : 'g', comment : 'gravity acceleration',
-        type : 'float' , unit : 'm*(s**-2)', values : 9.80665 },
+        type : 'float32' , unit : 'm*(s**-2)', values : 9.80665 },
       {name : 'Na', comment : 'Avogadro number',
-        type : 'float' , unit : 'mol**-1', values : 6.02214e+23 }
+        type : 'float32' , unit : 'mol**-1', values : 6.02214e+23 }
       ]
     },
     {
@@ -24,7 +24,7 @@ export const Tuto: Sdstree = {
         {
           name : 'Vect1',
           comment : 'Boolean vector',
-          type : 'boolean',
+          type : 'bool',
           unit : 'x',
           dimensions : [{size : 6}],
           values : [true, false, true, false, true, false]
@@ -37,7 +37,7 @@ export const Tuto: Sdstree = {
         {
           name : 'Vect2',
           comment : 'Signed integers vector',
-          type : 'integer',
+          type : 'int32',
           unit : 'm',
           dimensions : [{size : 6}],
           values : [-1, -2, -3, -4, -5, -6]
@@ -45,7 +45,7 @@ export const Tuto: Sdstree = {
         {
           name : 'Vect3',
           comment : 'Unsigned integers vector',
-          type : 'integer',
+          type : 'int32',
           unit : 's',
           dimensions : [{size : 6}],
           values : [1, 2, 3, 4, 5, 6]
@@ -55,11 +55,11 @@ export const Tuto: Sdstree = {
     {name: 'Vect0' , comment: ' Group Vector with values in the sds root file',
      matrices : [
       {name : 'Mach', comment : 'Mach',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 4}],
         values : [0.3, 0.4, 0.5, 0.6] },
       {name : 'Altitude', comment : 'altitude',
-        type : 'float' , unit : 'x100 feet',
+        type : 'float32' , unit : 'x100 feet',
         dimensions : [{size : 6}],
         values : [190, 210, 230, 250, 270, 290 ] }
       ]
@@ -67,11 +67,11 @@ export const Tuto: Sdstree = {
     {name: 'VectF' , comment: 'Group Vector with values in others files',
      matrices : [
       {name : 'MachF', comment : 'Mach',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 4}],
         values : [1.1, 1.2, 2.3, 3.4] },
       {name : 'AltitudeF', comment : 'altitude',
-        type : 'float' , unit : 'x100 feet',
+        type : 'float32' , unit : 'x100 feet',
         dimensions : [{size : 6}],
         values : [1190, 1210, 1230, 1250, 1270, 1290] }
       ]
@@ -79,12 +79,12 @@ export const Tuto: Sdstree = {
     {name: 'Mat0' , comment: 'Group Matrix Examples',
      matrices : [
       {name : 'MatrixS', comment : 'Small Matrix with direct values',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 2}, {size : 2}],
         values : [[7.0, 1.7] , [3.7, 4.7]] },
        {name : 'MatrixF',
          comment : 'Average Matrix with scales',
-         type : 'float' , unit : '',
+         type : 'float64' , unit : '',
          dimensions : [
            {size : 4, scale: '/VectF/MachF'},
            {size : 6, scale: '/VectF/AltitudeF'}],
@@ -97,7 +97,7 @@ export const Tuto: Sdstree = {
        },
        {name : 'MatrixL',
          comment : 'Average Matrix with values in file',
-         type : 'float' , unit : '',
+         type : 'float32' , unit : '',
          dimensions : [
            {size : 4, scale: '/Vect0/Mach'},
            {size : 6, scale: '/Vect0/Altitude'}],
@@ -113,7 +113,7 @@ export const Tuto: Sdstree = {
     {name: 'Cube0' , comment: 'Group Cube Examples',
      matrices : [
       {name : 'CubeS', comment : 'Small Cube with direct values',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 2}, {size : 2}, {size : 2}],
         values : [[[1.11, 1.12], [1.21, 1.22]],
                   [[2.11, 2.12], [2.21, 2.22]]]
@@ -122,7 +122,7 @@ export const Tuto: Sdstree = {
     {name: 'HypCube0' , comment: 'Group Hyper Cube Examples',
      matrices : [
       {name : 'HypCubeS', comment : 'Small Hyper Cube with direct values',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 2}, {size : 2}, {size : 2}, {size : 2}],
         values : [[[[1.111, 1.112], [1.121, 1.122]],
                    [[1.211, 1.212], [1.221, 1.222]]],
@@ -133,13 +133,13 @@ export const Tuto: Sdstree = {
     {name: 'Mat1' , comment: 'Group Matrix with variant Examples',
      matrices : [
       {name : 'MatrixS', comment : 'Small Matrix with direct values',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 2}, {size : 2}],
         variants : [{name: '/Mat0/MatrixS', comment: 'alternate'},
           {name: '/Mat1/MatrixSB', comment: 'backup'}] ,
         values : [[6.0, 0.7], [2.7, 3.7]] },
       {name : 'MatrixSB', comment : 'Another Small Matrix with direct values',
-        type : 'float' , unit : '',
+        type : 'float32' , unit : '',
         dimensions : [{size : 2}, {size : 2}],
         variants : [{name: '/Mat0/MatrixS', comment: 'alternate'},
           {name: '/Mat1/MatrixS', comment: 'backup'}] ,

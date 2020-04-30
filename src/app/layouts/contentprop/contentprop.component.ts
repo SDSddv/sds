@@ -18,9 +18,10 @@ export class ContentpropComponent implements OnInit {
   private isFormValid = true;
 
   allowedDataTypes: string[] = [
-    "boolean",
-    "integer",
-    "float"
+    "bool",
+    "int32",
+    "float32",
+    "float64"
   ];
 
   constructor(private sdsService: SdstreeService) {
