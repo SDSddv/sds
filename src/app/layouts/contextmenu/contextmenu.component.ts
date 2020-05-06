@@ -31,7 +31,7 @@ export class ContextmenuComponent implements OnInit {
     { text: 'Create',
       items: [
         { text: 'Group' },
-        { text: 'Matrix' }
+        { text: 'Data' }
       ]
     },
     { text: 'Delete' }
@@ -70,9 +70,9 @@ export class ContextmenuComponent implements OnInit {
       console.log("Creating group node for " + treeViewItem.id);
       this.sdsService.createGroupNode(treeViewItem, "new group");
     }
-    else if (e.itemData.text == "Matrix") {
-      console.log("Creating matrix node for " + treeViewItem.id);
-      this.sdsService.createMatrixNode(treeViewItem, "new matrix");
+    else if (e.itemData.text == "Data") {
+      console.log("Creating data structure node for " + treeViewItem.id);
+      this.sdsService.createDataStructureNode(treeViewItem, "new data");
     }
     else if (e.itemData.text == "Delete") {
       console.log("Deleting node " + treeViewItem.id);

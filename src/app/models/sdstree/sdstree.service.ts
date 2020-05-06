@@ -300,10 +300,10 @@ export class SdstreeService {
   }
 
   /*
-     Creates a new matrix node from the provided parent node.
+     Creates a new data structure node from the provided parent node.
      The created node is initialized with the provided matrix name and identifier.
   */
-  createMatrixNode(parentNode, matrixName) {
+  createDataStructureNode(parentNode, matrixName) {
     if (parentNode) {
       let lastItem = this.getLastMatrixItem(parentNode);
       let lastItemId = null;
