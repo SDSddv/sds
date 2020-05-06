@@ -2,6 +2,9 @@ import {SDSNode} from './SDSNode';
 import {Group} from './SDSGroup';
 import {History} from './../../layouts/contentprop/Properties';
 
+/* Maximum dimensions count that the application can manage. */
+export const maxDimensionsCount: number = 4;
+
 export class Sdstree extends SDSNode { // Dico
   history: History;
   groups ?: Group[];

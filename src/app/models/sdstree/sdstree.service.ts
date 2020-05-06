@@ -1074,7 +1074,7 @@ export class SdstreeService {
           for (const dim of this.currentNode.dimensions) {
             this.prop.dimensions[i] = new DimensionP();
             this.prop.dimensions[i].size = dim.size;
-            if (dim.scale) {
+            if (dim.scale != null) {
               this.prop.dimensions[i].scale = dim.scale;
             }
             i++;

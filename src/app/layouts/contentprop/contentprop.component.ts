@@ -5,6 +5,7 @@ import notify from 'devextreme/ui/notify';
 import {DxSelectBoxModule, DxSelectBoxComponent} from "devextreme-angular";
 import {Matrix} from '../../models/sdstree/SDSMatrix';
 import {dataTypes} from '../../models/sdstree/dataTypes';
+import {maxDimensionsCount} from '../../models/sdstree/sdstree';
 
 @Component({
   selector: 'app-contentprop',
@@ -40,6 +41,13 @@ export class ContentpropComponent implements OnInit {
   }
 
   /*
+    Gets the maximum number of dimensions that can be managed by the application.
+  */
+  getMaxDimensions(): number {
+    return maxDimensionsCount;
+  }
+
+  /*
     Checks if a property is allowed for the current node or not.
   */
   isPropertyAllowed() {
@@ -70,6 +78,70 @@ export class ContentpropComponent implements OnInit {
     if (this.prop && this.prop.unit != null) {
       delete this.prop.unit;
       this.setProperties(this.prop);
+    }
+  }
+
+  /*
+    Add dimension property handler.
+  */
+  onAddDimension(e) {
+    this.getProperties();
+    if (this.prop) {
+      if (!this.prop.dimensions) {
+        this.prop.dimensions = new Array();
+      }
+      this.prop.dimensions.push({size: 1});
+      console.error(this.prop)
+      this.setProperties(this.prop);
+    }
+  }
+
+  /*
+    Delete dimension property handler.
+  */
+  onDeleteDimension(e, position) {
+    this.getProperties();
+    if (this.prop) {
+      if (this.prop.dimensions) {
+        if (position <= this.prop.dimensions.length) {
+          this.prop.dimensions.splice(position, 1);
+          console.error(this.prop)
+          this.setProperties(this.prop);
+        }
+      }
+    }
+  }
+
+
+  /*
+    Add scale property handler.
+  */
+  onAddScale(e, position) {
+    this.getProperties();
+    if (this.prop) {
+      if (this.prop.dimensions) {
+        let dimension = this.prop.dimensions[position];
+        if (dimension) {
+          dimension.scale = "";
+          this.setProperties(this.prop);
+        }
+      }
+    }
+  }
+
+  /*
+    Delete scale property handler.
+  */
+  onDeleteScale(e, position) {
+    this.getProperties();
+    if (this.prop) {
+      if (this.prop.dimensions) {
+        let dimension = this.prop.dimensions[position];
+        if (dimension) {
+          delete dimension.scale;
+          this.setProperties(this.prop);
+        }
+      }
     }
   }
 
@@ -398,6 +470,21 @@ export class ContentpropComponent implements OnInit {
     }
     let notificationOptions = { message: notificationMessage, width: 500, shading: true };
     notify(notificationOptions, notificationType, notificationDurationMsec);
+  }
+
+  /*
+    Gets an array with the next available dimension for the current node
+    (limited to the maximum of dimensions that the application can manage).
+  */
+  getNextDimension() {
+    let nextDimension = new Array();
+    this.getProperties();
+    if (this.prop && this.prop.dimensions) {
+      if (this.prop.dimensions.length < this.getMaxDimensions()) {
+        nextDimension.push(this.prop.dimensions.length+1);
+      }
+    }
+    return nextDimension;
   }
 
   /*
