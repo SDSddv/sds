@@ -3,6 +3,7 @@ import {SdstreeService} from '../../models/sdstree/sdstree.service';
 import {nullProp, Properties} from './Properties';
 import notify from 'devextreme/ui/notify';
 import {DxSelectBoxModule, DxSelectBoxComponent} from "devextreme-angular";
+import {Matrix} from '../../models/sdstree/SDSMatrix';
 import {dataTypes} from '../../models/sdstree/dataTypes';
 
 @Component({
@@ -36,6 +37,40 @@ export class ContentpropComponent implements OnInit {
 
   getCurrentNode() {
     return this.currentNode;
+  }
+
+  /*
+    Checks if a property is allowed for the current node or not.
+  */
+  isPropertyAllowed() {
+    let isAllowed = false;
+    let currentNode = this.getCurrentNode();
+    if (currentNode && currentNode instanceof Matrix) {
+      isAllowed = true;
+    }
+    return isAllowed;
+  }
+
+  /*
+    Add unit property handler.
+  */
+  onAddUnit(e) {
+    this.getProperties();
+    if (this.prop) {
+      this.prop.unit = "";
+      this.setProperties(this.prop);
+    }
+  }
+
+  /*
+    Delete unit property handler.
+  */
+  onDeleteUnit(e) {
+    this.getProperties();
+    if (this.prop && this.prop.unit != null) {
+      delete this.prop.unit;
+      this.setProperties(this.prop);
+    }
   }
 
   /*
@@ -185,7 +220,7 @@ export class ContentpropComponent implements OnInit {
     }
     if (data.hasOwnProperty('unit')) {
       let unit:any = data['unit'];
-      if (unit) {
+      if (unit != null) {
         formData["unit"] = unit.value;
       }
     }
@@ -371,5 +406,14 @@ export class ContentpropComponent implements OnInit {
   getProperties() {
     this.prop = this.sdsService.getCurrentNodeProperties();
     return true;
+  }
+
+  /*
+    Updates the current node properties.
+  */
+  setProperties(properties: Properties) {
+    if (properties) {
+      this.sdsService.setCurrentNodeProperties(properties);
+    }
   }
 }

@@ -17,7 +17,6 @@ export class transformNavTreeToSdsTree {
       matrix.name = name;
       matrix.comment = "";
       matrix.type = " ";
-      matrix.unit = " ";
       matrix.values = 1;
       return matrix;
     }

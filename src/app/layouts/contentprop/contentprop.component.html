@@ -62,15 +62,35 @@
           </dx-select-box>
         </div>
     </div>
-    <div class="dx-field" *ngIf="prop.unit">
+    <div class="dx-field" *ngIf="prop.unit != null">
         <div class="dx-field-label">Unit</div>
         <div class="dx-field-value">
-          <dx-text-box [(value)]=prop.unit (onChange)="onChange($event)" [inputAttr]="{name: 'unit'}">
-            <dx-validator>
-              <dxi-validation-rule type="custom" message="Unit is required" [validationCallback]="validationCallback"></dxi-validation-rule>
-            </dx-validator>
-          </dx-text-box>
+          <td style="width: 100%;">
+            <dx-text-box [(value)]=prop.unit (onChange)="onChange($event)" [inputAttr]="{name: 'unit'}">
+              <dx-validator>
+                <dxi-validation-rule type="custom" message="Unit is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+              </dx-validator>
+            </dx-text-box>
+          </td>
+          <td>
+            <dx-button
+              icon="trash"
+              hint="Delete unit property"
+              (onClick)="onDeleteUnit($event)">
+            </dx-button>
+          </td>
         </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.unit == null && isPropertyAllowed()">
+      <div class="dx-field-label">Unit</div>
+      <div class="dx-field-value">
+        <dx-button
+          icon="add"
+          hint="Add unit property"
+          style="float: left;"
+          (onClick)="onAddUnit($event)">
+        </dx-button>
+      </div>
     </div>
     <div class="dx-field" *ngIf="prop.dimensions">
       <div *ngFor="let dimI of this.prop.dimensions; index as I; trackBy: trackArray">
@@ -114,7 +134,7 @@
       </div>
     </div>
     <!--
-      If a button is not added,
+      FIXME: If a button is not added,
       the form will never be submitted when pressing enter after editing a value.
       So adding a submit button and hide it.
     -->

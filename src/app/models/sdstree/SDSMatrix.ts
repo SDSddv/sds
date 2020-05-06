@@ -3,7 +3,7 @@ import {SDSNode} from './SDSNode';
 
 export class Matrix extends SDSNode {
   type: string;
-  unit: string;
+  unit ?: string;
   dimensions ?: Dimension[];
   variants ?: RefMatrix[];
   // when the number of item is greater strict than 20

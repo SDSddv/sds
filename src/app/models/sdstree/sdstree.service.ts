@@ -1064,7 +1064,7 @@ export class SdstreeService {
         if (this.currentNode.type) {
           this.prop.type = this.currentNode.type;
         }
-        if (this.currentNode.unit) {
+        if (this.currentNode.unit != null) {
           this.prop.unit = this.currentNode.unit;
         }
         if (this.currentNode.dimensions) {
@@ -1126,8 +1126,13 @@ export class SdstreeService {
         if (properties.type) {
           this.currentNode.type = properties.type;
         }
-        if (properties.unit) {
+        if (properties.unit != null) {
           this.currentNode.unit = properties.unit;
+        }
+        else {
+          if (this.currentNode.unit != null) {
+            delete this.currentNode.unit;
+          }
         }
         if (properties.dimensions) {
           this.currentNode.dimensions = properties.dimensions;
