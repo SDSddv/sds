@@ -18,6 +18,11 @@ enum operationDirection {
   Column,
 }
 
+enum styleOperation {
+  Highlight,
+  Dishighlight,
+}
+
 @Component({
   selector: 'app-contentvalue',
   templateUrl: './contentvalue.component.html',
@@ -45,6 +50,9 @@ export class ContentvalueComponent implements OnInit {
     showPane: true,
     text: "Loading data..."
   };
+  columnElementArray = new Array();
+  rowElementArray = new Array();
+  nodesToHighlightArray = new Array();
 
   constructor(private sdsService: SdstreeService) {
     /*
@@ -215,6 +223,125 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Validates an highlighted column data.
+    The column is dishighlighted.
+  */
+  onValidateColumn(position) {
+    for (let iter = 0; iter < this.columnElementArray.length; iter++) {
+      let element = this.columnElementArray[iter].cellElement;
+      let type = this.columnElementArray[iter].rowType;
+      let index = this.columnElementArray[iter].rowIndex;
+      this.columnElementHighlight(element, type, index, styleOperation.Dishighlight);
+    }
+    this.columnElementArray.length = 0;
+    /*
+      Reset the nodes to highlight array when any column has been validated.
+    */
+    this.nodesToHighlightArray.length = 0;
+  }
+
+  /*
+    Validates an highlighted row data.
+    The row is dishighlighted.
+  */
+  onValidateRow(position) {
+    for (let iter = 0; iter < this.rowElementArray.length; iter++) {
+      let element = this.rowElementArray[iter].cellElement;
+      let type = this.rowElementArray[iter].rowType;
+      let index = this.rowElementArray[iter].columnIndex;
+      this.rowElementHighlight(element, type, index, styleOperation.Dishighlight);
+    }
+    this.rowElementArray.length = 0;
+    /*
+      Reset the nodes to highlight array when any row has been validated.
+    */
+    this.nodesToHighlightArray.length = 0;
+  }
+
+  /*
+    Gets the border style when highlighting/dishighlighting a column/row.
+  */
+  getBorderStyle(operation) {
+    let borderColor = "";
+    let borderStyle = "";
+    let borderWidth = "";
+    if (operation == styleOperation.Highlight) {
+      borderColor = "#337ab7"; // Devextreme light blue
+      borderStyle = "solid";
+      borderWidth = "2px";
+    }
+    return {color: borderColor, style: borderStyle, width: borderWidth};
+  }
+
+  /*
+    Highlights/dishighlights a column element.
+  */
+  columnElementHighlight(element, elementType, index, operation) {
+    if (element) {
+      let rowsCount = this.dataGrid.instance.totalCount();
+      let border = this.getBorderStyle(operation);
+      let borderColor = border.color;
+      let borderStyle = border.style;
+      let borderWidth = border.width;
+      /* Update the top border for the first column. */
+      if (elementType == "header") {
+        element.style.borderTopColor = borderColor;
+        element.style.borderTopStyle = borderStyle;
+        element.style.borderTopWidth = borderWidth;
+      }
+      else {
+        /* Update the bottom border for the last column. */
+        if (index == rowsCount - 1) {
+          element.style.borderBottomColor = borderColor;
+          element.style.borderBottomStyle = borderStyle;
+          element.style.borderBottomWidth = borderWidth;
+        }
+      }
+      /* Update the right/left borders for the other column items. */
+      element.style.borderLeftColor = borderColor;
+      element.style.borderLeftStyle = borderStyle;
+      element.style.borderLeftWidth = borderWidth;
+      element.style.borderRightColor = borderColor;
+      element.style.borderRightStyle = borderStyle;
+      element.style.borderRightWidth = borderWidth;
+    }
+  }
+
+  /*
+    Highlights/dishighlights a row element.
+  */
+  rowElementHighlight(element, elementType, index, operation) {
+    if (element) {
+      let columnCount = this.dataGrid.instance.columnCount()
+      let border = this.getBorderStyle(operation)
+      let borderColor = border.color;
+      let borderStyle = border.style;
+      let borderWidth = border.width;
+      /* Update the left border for the first row. */
+      if (index == 0) {
+        element.style.borderLeftColor = borderColor;
+        element.style.borderLeftStyle = borderStyle;
+        element.style.borderLeftWidth = borderWidth;
+      }
+      else {
+        /* Update the right border for the last row item. */
+        if (index == columnCount - 1) {
+          element.style.borderRightColor = borderColor;
+          element.style.borderRightStyle = borderStyle;
+          element.style.borderRightWidth = borderWidth;
+        }
+      }
+      /* Update the top/bottom borders for the other row items. */
+      element.style.borderTopColor = borderColor;
+      element.style.borderTopStyle = borderStyle;
+      element.style.borderTopWidth = borderWidth;
+      element.style.borderBottomColor = borderColor;
+      element.style.borderBottomStyle = borderStyle;
+      element.style.borderBottomWidth = borderWidth;
+    }
+  }
+
+  /*
     Cell rendering handler.
   */
   onCellPrepared(e) {
@@ -222,14 +349,45 @@ export class ContentvalueComponent implements OnInit {
     /* Change the background color of the columns headers. */
     if (e.rowType == "header") {
       e.cellElement.style.backgroundColor = backgroundColor;
-      if (e.columnIndex == 0) {
-//        e.cellElement.style.fontWeight = "bold";
-      }
     }
     else if (e.rowType == "data") {
-    /* Change the background color of the first column of the data cells. */
-    if (e.columnIndex == 0) {
-        e.cellElement.style.backgroundColor = backgroundColor;
+      /* Change the background color of the first column of the data cells. */
+      if (e.columnIndex == 0) {
+          e.cellElement.style.backgroundColor = backgroundColor;
+      }
+    }
+    let currentNode = this.sdsService.getCurrentNode();
+    let valueType = this.getValueType();
+    if (this.nodesToHighlightArray) {
+      for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+        let item = this.nodesToHighlightArray[iter];
+        if (item && item.node == currentNode.name) {
+          if (item.direction == operationDirection.Column) {
+          /*
+            If a column has been inserted, highlight it.
+          */
+          if (e.columnIndex == item.position) {
+              /*
+                Memorize the column data that are highlighted in order to dishighlight them later.
+              */
+              this.columnElementArray.push({cellElement: e.cellElement, rowType: e.rowType, rowIndex: e.rowIndex});
+              this.columnElementHighlight(e.cellElement, e.rowType, e.rowIndex, styleOperation.Highlight);
+            }
+          }
+          else {
+            /*
+              If a row has been inserted, highlight it.
+            */
+            if (e.rowIndex == item.position) {
+              /*
+                Memorize the row data that are highlighted in order to dishighlight them later.
+              */
+              this.rowElementArray.push({cellElement: e.cellElement, rowType: e.rowType, columnIndex: e.columnIndex});
+              this.rowElementHighlight(e.cellElement, e.rowType, e.columnIndex, styleOperation.Highlight);
+            }
+          }
+          break;
+        }
       }
     }
   }
@@ -603,6 +761,10 @@ export class ContentvalueComponent implements OnInit {
         if (scalePath) {
           let node = this.sdsService.getNodeDescByPath(scalePath);
           if (node) {
+            /*
+              Memorize the node to highlight info.
+            */
+            this.nodesToHighlightArray.push({node: node.name, position: position, direction: operationDirection.Column});
             this.setColumnData(position, operation, node);
             let scaleData = this.getData(this.i0, this.j0, true, node);
             if (scaleData && scaleData instanceof Array) {
@@ -644,17 +806,30 @@ export class ContentvalueComponent implements OnInit {
         for (let iter = 0; iter < matrixRefs.length; iter++) {
           let matrixRef = matrixRefs[iter];
           if (matrixRef) {
+            let direction = null;
             let refIndex = matrixRef.index;
             /*
               If the index is 0 (i.e dimensions[0].scale attribute we manipulate the columns of the scaled matrix.
               If the index is 1 (i.e dimensions[1].scale attribute we manipulate the rows of the scaled matrix.
             */
             if (refIndex == 0) {
+              direction = operationDirection.Column;
               this.setColumnData(position, operation, matrixRef.dataStructure);
             }
             else if (refIndex == 1) {
+              direction = operationDirection.Row;
               this.setRowData(position-1, operation, matrixRef.dataStructure);
             }
+            if (direction == operationDirection.Row) {
+              /*
+                Rows starts at 0 while columns starts at 1.
+              */
+              position = position - 1;
+            }
+            /*
+              Memorize the node to highlight info.
+            */
+            this.nodesToHighlightArray.push({node: matrixRef.dataStructure.name, position: position, direction: direction});
             this.sdsService.addNodeIcon(matrixRef.dataStructure.name, "warning");
           }
         }
@@ -676,7 +851,20 @@ export class ContentvalueComponent implements OnInit {
   onAddColumn(position) {
     let operation = operationKind.AddData;
     let direction = operationDirection.Column;
-    console.log("Adding new column at position: " + position)
+    console.log("Adding new column at position: " + position);
+    /*
+      When inserting a new column,
+      all previously unvalidated rows/columns (if any) are
+      automatically validated by resetting the array.
+    */
+    this.nodesToHighlightArray.length = 0;
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode) {
+      /*
+        Memorize the node to highlight info.
+      */
+      this.nodesToHighlightArray.push({node: currentNode.name, position: position, direction: direction});
+    }
     this.setColumnData(position, operation);
     this.setNodeRefsData(position, operation, direction);
     this.dataGrid.instance.refresh();
@@ -691,6 +879,12 @@ export class ContentvalueComponent implements OnInit {
     console.log("Deleting column at position: " + position)
     this.setColumnData(position, operation);
     this.setNodeRefsData(position, operation, direction);
+    /*
+      When deleting a column,
+      any previously unvalidated rows/columns (if any) are
+      automatically validated by resetting the array.
+    */
+    this.nodesToHighlightArray.length = 0;
     this.dataGrid.instance.refresh();
   }
 
@@ -830,7 +1024,20 @@ export class ContentvalueComponent implements OnInit {
   onAddRow(position) {
     let operation = operationKind.AddData;
     let direction = operationDirection.Row;
-    console.log("Adding new row at position: " + position)
+    console.log("Adding new row at position: " + position);
+    /*
+      When inserting a new row,
+      all previously unvalidated rows/columns (if any) are
+      automatically validated by resetting the array.
+    */
+    this.nodesToHighlightArray.length = 0;
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode) {
+      /*
+        Memorize the node to highlight info.
+      */
+      this.nodesToHighlightArray.push({node: currentNode.name, position: position, direction: direction});
+    }
     this.setRowData(position, operation);
     this.setNodeRefsData(position+1, operation, direction);
     this.dataGrid.instance.refresh();
@@ -845,7 +1052,31 @@ export class ContentvalueComponent implements OnInit {
     console.log("Deleting row at position: " + position)
     this.setRowData(position, operation);
     this.setNodeRefsData(position+1, operation, direction);
+    /*
+      When deleting a row,
+      any previously unvalidated rows/columns (if any) are
+      automatically validated by resetting the array.
+    */
+    this.nodesToHighlightArray.length = 0;
     this.dataGrid.instance.refresh();
+  }
+
+  /*
+    Gets the highlighted item (if any) matching the provided node name.
+    If the node has no highlighted data, null is returned.
+  */
+  getHighlightedItem(nodeName) {
+    let highlightedItem = null;
+    if (this.nodesToHighlightArray) {
+      for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+        let item = this.nodesToHighlightArray[iter];
+        if (item && item.node == nodeName) {
+          highlightedItem = item;
+          break;
+        }
+      }
+    }
+    return highlightedItem;
   }
 
   /*
@@ -853,7 +1084,7 @@ export class ContentvalueComponent implements OnInit {
   */
   onContextMenuPreparing(e) {
     if (e) {
-      let properties = this.sdsService.getCurrentNodeProperties();
+      let currentNode = this.sdsService.getCurrentNode();
       let dataItems = this.getDataSourceItems();
       let items = e.items;
       if (!items) {
@@ -865,6 +1096,24 @@ export class ContentvalueComponent implements OnInit {
       }
       /* Right click was done on a column. */
       if (e.row.rowType == "header") {
+        /*
+          If a column is highlighted, allow the user to accept the modification
+          in order to dishighlight it.
+        */
+        let item = this.getHighlightedItem(currentNode.name);
+        if (item != null) {
+          if (item.direction == operationDirection.Column) {
+            if (e.columnIndex == item.position) {
+              items.unshift(
+                {
+                  text: 'Validate column',
+                  icon: 'check',
+                  onClick: this.onValidateColumn.bind(this, e.columnIndex)
+                }
+              );
+            }
+          }
+        }
         /*
           Delete the first column is not allowed.
           Delete a column is not allowed if the grid contains only one column.
@@ -902,6 +1151,24 @@ export class ContentvalueComponent implements OnInit {
       }
       else {
         /* Right click was done on a row. */
+        /*
+          If a row is highlighted, allow the user to accept the modification
+          in order to dishighlight it.
+        */
+        let item = this.getHighlightedItem(currentNode.name);
+        if (item != null) {
+          if (item.direction == operationDirection.Row) {
+            if (e.rowIndex == item.position) {
+              items.unshift(
+                {
+                  text: 'Validate row',
+                  icon: 'check',
+                  onClick: this.onValidateRow.bind(this, e.rowIndex)
+                }
+              );
+            }
+          }
+        }
         /* Deleting a row is not allowed when the data only contains one row. */
         if (dataItems && (dataItems.length >= 2)) {
           /* Delete the first row is not allowed. */
