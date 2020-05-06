@@ -3,6 +3,7 @@ import {SdstreeService} from '../../models/sdstree/sdstree.service';
 import {nullProp, Properties} from './Properties';
 import notify from 'devextreme/ui/notify';
 import {DxSelectBoxModule, DxSelectBoxComponent} from "devextreme-angular";
+import {dataTypes} from '../../models/sdstree/dataTypes';
 
 @Component({
   selector: 'app-contentprop',
@@ -17,12 +18,7 @@ export class ContentpropComponent implements OnInit {
   private currentNode = null;
   private isFormValid = true;
 
-  allowedDataTypes: string[] = [
-    "bool",
-    "int32",
-    "float32",
-    "float64"
-  ];
+  allowedDataTypes = dataTypes;
 
   constructor(private sdsService: SdstreeService) {
     this.sdsService.setContentPropInstance(this);
