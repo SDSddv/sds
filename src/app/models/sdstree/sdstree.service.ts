@@ -485,6 +485,29 @@ export class SdstreeService {
   }
 
   /*
+    Gets a node descriptor by its name in the SDS tree.
+  */
+  getNodeDescByName(nodeName) {
+    let node = null;
+    if (!nodeName) {
+      return null;
+    }
+    if (this.mapMatrix) {
+      for (let entry of this.mapMatrix.entries()) {
+        let key = entry[0];
+        let value = entry[1];
+        const idx = key.lastIndexOf("/") + 1;
+        let name = key.substr(idx);
+        if (name == nodeName) {
+          node = value;
+          break;
+        }
+      }
+    }
+    return node;
+  }
+
+  /*
     Checks if there is no more than one reference in the
     ZIP files matching the provided name.
     It so the entry name is returned. Else, null is returned.

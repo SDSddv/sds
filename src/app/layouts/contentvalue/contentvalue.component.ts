@@ -146,11 +146,15 @@ export class ContentvalueComponent implements OnInit {
       for (let iter = 0; iter < columns.length; iter++) {
         if (iter == 0) {
           /* Fixing the first column width. */
-          columns[iter].width = 150;
+          columns[iter].width = 250;
           if (!this.scalOrVect) {
             if (this.decoup0_col && this.decoup1_lig) {
-              let verticalCaption = this.getDecoupMatrixName(1);
-              let horizontalCaption = this.getDecoupMatrixName(0);
+              let verticalNodeName = this.getDecoupMatrixName(1);
+              let verticalNode = this.sdsService.getNodeDescByName(verticalNodeName);
+              let verticalCaption = verticalNodeName;
+              let horizontalNodeName = this.getDecoupMatrixName(0);
+              let horizontalNode = this.sdsService.getNodeDescByName(horizontalNodeName);
+              let horizontalCaption = horizontalNodeName;
               /*
                 Apply default values if
                 either vertical or horizontal caption is unavailable.
@@ -160,6 +164,12 @@ export class ContentvalueComponent implements OnInit {
               }
               if (!horizontalCaption) {
                 horizontalCaption = "Scale 2"
+              }
+              if (verticalNode && verticalNode.unit != null) {
+                verticalCaption += " (" + verticalNode.unit + ")";
+              }
+              if (horizontalNode && horizontalNode.unit != null) {
+                horizontalCaption += " (" + horizontalNode.unit + ")";
               }
               columns[iter].caption = verticalCaption + " / " + horizontalCaption;
             }
