@@ -13,7 +13,7 @@ export class NavtreeComponent implements OnInit {
   @ViewChild(DxTreeViewComponent, { static: false }) treeView: DxTreeViewComponent
   scrollByContent = true;
   scrollByThumb = true;
-  scrollbarMode = 'onScroll';
+  scrollbarMode = 'always';
   pullDown = false;
   reachBottomText = '';
 
