@@ -24,8 +24,7 @@ export class ContextmenuComponent implements OnInit {
       items: [
         { text: 'Group' },
       ]
-    },
-    { text: 'Delete' }
+    }
   ];
 
   groupContextMenuItems = [
