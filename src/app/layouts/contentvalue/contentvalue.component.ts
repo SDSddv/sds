@@ -44,6 +44,8 @@ export class ContentvalueComponent implements OnInit {
   decoup1_lig: number[];
   previousNode = null;
   previousData = null;
+  editedColumnIdx = null;
+  editedRowIdx = null;
   loadPanelProps: any = {
     enabled: true,
     showIndicator: true,
@@ -396,6 +398,8 @@ export class ContentvalueComponent implements OnInit {
     Cell edition start handler.
   */
   onEditingStart(e) {
+    this.editedColumnIdx = e.column.index;
+    this.editedRowIdx = e.component.getRowIndexByKey(e.key);
     /* Do not take a reference on e.data array, make a deep copy. */
     let lastEditedCellData = Object.assign([], e.data);
     this.sdsService.setLastEditedCell(lastEditedCellData)
@@ -429,14 +433,39 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Checks if the provided row & column cell indexes belongs to an highlighted row/column.
+    If so, returns the highlighted row/column data.
+  */
+  getMatchingHighlightedDataInfo(rowIndex, colIndex) {
+    let highlightedDataInfo = null;
+    let currentNode = this.sdsService.getCurrentNode();
+    if (currentNode && this.nodesToHighlightArray) {
+      for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+        let highlightedItem = this.nodesToHighlightArray[iter];
+        if (highlightedItem && highlightedItem.node == currentNode.name) {
+          if (highlightedItem.direction == operationDirection.Row && highlightedItem.position == rowIndex) {
+            highlightedDataInfo = highlightedItem;
+            break;
+          }
+          else if (highlightedItem.direction == operationDirection.Column && highlightedItem.position == colIndex) {
+            highlightedDataInfo = highlightedItem;
+            break;
+          }
+        }
+      }
+    }
+    return highlightedDataInfo;
+  }
+
+  /*
     Cell edition end handler.
   */
   onContentReady(e) {
     let items = this.getDataSourceItems();
     let lastEditedCellData = this.sdsService.getLastEditedCell();
     /* Check if some cell content has changed. */
-    if (this.hasCellContentChanged(lastEditedCellData, items)) {
-      if (items) {
+    if (items) {
+      if (this.hasCellContentChanged(lastEditedCellData, items)) {
         let currentProperties = this.sdsService.getCurrentNodeProperties();
         let newItems = new Array();
         for (let rowIter = 0; rowIter < items.length; rowIter++) {
@@ -468,6 +497,18 @@ export class ContentvalueComponent implements OnInit {
         this.sdsService.setCurrentValue(newItems, (this.i0 - 1), (this.j0 - 1));
         /* Reset the last edited cell content. */
         this.sdsService.setLastEditedCell(null);
+        /* Validate the row/column data when a value has been edited in an highlighted row/column. */
+        let highlightedCellInfo = this.getMatchingHighlightedDataInfo(this.editedRowIdx, this.editedColumnIdx);
+        if (highlightedCellInfo) {
+          if (highlightedCellInfo.direction == operationDirection.Row) {
+            this.onValidateRow(highlightedCellInfo.position);
+          }
+          else if (highlightedCellInfo.direction == operationDirection.Column) {
+            this.onValidateColumn(highlightedCellInfo.position);
+          }
+          this.editedRowIdx = null;
+          this.editedColumnIdx = null;
+        }
       }
     }
   }
