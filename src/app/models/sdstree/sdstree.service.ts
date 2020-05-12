@@ -1160,10 +1160,10 @@ export class SdstreeService {
   /*
     Updates the current node value.
   */
-  setCurrentValue(value, i0?: number , j0?: number, node?) {
+  setCurrentValue(value, i0?: number , j0?: number, node?, type?) {
     let curValue = this.curValue;
     if (curValue) {
-      curValue.setCurrentValue(value, i0, j0, node);
+      curValue.setCurrentValue(value, i0, j0, node, type);
       /*
         Update the SDS data model.
       */

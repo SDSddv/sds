@@ -248,7 +248,7 @@ export class manageCurrentNode {
     let res = false ;
     if ( curNode instanceof Matrix) {
       if ( curNode.dimensions ) {
-        if ( curNode.dimensions[0].scale ) {
+        if ( curNode.dimensions.length > 0 && curNode.dimensions[0].scale ) {
           res = true;
         }
       }

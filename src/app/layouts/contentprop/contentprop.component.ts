@@ -40,6 +40,15 @@ export class ContentpropComponent implements OnInit {
     return this.currentNode;
   }
 
+  /* Gets the content value widget instance. */
+  getContentValueInstance() {
+    let contentValueInstance = null;
+    if (this.sdsService) {
+      contentValueInstance = this.sdsService.getContentValueInstance();
+    }
+    return contentValueInstance;
+  }
+
   /*
     Gets the maximum number of dimensions that can be managed by the application.
   */
@@ -87,12 +96,27 @@ export class ContentpropComponent implements OnInit {
   onAddDimension(e) {
     this.getProperties();
     if (this.prop) {
+      /*
+        If the current node doesn't have any dimension, initialize the dimensions array.
+      */
       if (!this.prop.dimensions) {
         this.prop.dimensions = new Array();
       }
+      let dimensionsCount = this.prop.dimensions.length;
+      /*
+        Initialize the new dimension with a size of 1.
+        This value will be automatically updated by the content value component.
+      */
       this.prop.dimensions.push({size: 1});
-      console.error(this.prop)
       this.setProperties(this.prop);
+      /*
+        Tell to the content value component to update
+        the data grid accordingly.
+      */
+      let contentValueInstance = this.getContentValueInstance();
+      if (contentValueInstance) {
+        contentValueInstance.onAddDimension(dimensionsCount);
+      }
     }
   }
 
@@ -104,9 +128,21 @@ export class ContentpropComponent implements OnInit {
     if (this.prop) {
       if (this.prop.dimensions) {
         if (position <= this.prop.dimensions.length) {
+          /*
+            Update the properties by removing the
+            dimension array item at the provided index.
+          */
           this.prop.dimensions.splice(position, 1);
-          console.error(this.prop)
+          let dimensionsCount = this.prop.dimensions.length;
           this.setProperties(this.prop);
+          /*
+            Tell to the content value component to update
+            the data grid accordingly.
+          */
+          let contentValueInstance = this.getContentValueInstance();
+          if (contentValueInstance) {
+            contentValueInstance.onDeleteDimension(dimensionsCount);
+          }
         }
       }
     }
@@ -124,6 +160,10 @@ export class ContentpropComponent implements OnInit {
         if (dimension) {
           dimension.scale = "";
           this.setProperties(this.prop);
+          let contentValueInstance = this.getContentValueInstance();
+          if (contentValueInstance) {
+            contentValueInstance.refreshDataGrid();
+          }
         }
       }
     }
@@ -140,6 +180,10 @@ export class ContentpropComponent implements OnInit {
         if (dimension) {
           delete dimension.scale;
           this.setProperties(this.prop);
+          let contentValueInstance = this.getContentValueInstance();
+          if (contentValueInstance) {
+            contentValueInstance.refreshDataGrid();
+          }
         }
       }
     }

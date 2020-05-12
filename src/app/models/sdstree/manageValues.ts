@@ -2,6 +2,7 @@ import {Matrix} from './SDSMatrix';
 import * as assert from 'assert';
 import {SDSNode} from './SDSNode';
 import {manageCurrentNode} from './manageCurrentNode';
+import {arraysEqual, getArrayDepth} from './common';
 
 // display service of the value of the current node
 
@@ -51,14 +52,14 @@ export class manageValues {
     }
   }
 
-  setCurrentValue(value, i0?: number , j0?: number, node?) {
+  setCurrentValue(value, i0?: number , j0?: number, node?, type?) {
     if (value) {
       let currentNode = this.currentNode;
       if (node != null) {
         currentNode = node;
       }
       if (currentNode && currentNode instanceof  Matrix) {
-        let dataType = this.getTypeOfValue(node);
+        let dataType = this.getTypeOfValue(node, type);
         if (typeof currentNode.values === 'string') {
           let v = value;
           if (dataType == 'valuesVect') {
@@ -122,8 +123,11 @@ export class manageValues {
 
   // display service of the type of value of the current node
   // to display matrix, cube, hypercube
-  getTypeOfValue(node?): string {
+  getTypeOfValue(node?, type?): string {
     let res: string;
+    if (type != null) {
+      return type;
+    }
     let currentNode = this.currentNode;
     if (node != null) {
       currentNode = node;
@@ -156,7 +160,7 @@ export class manageValues {
     if (node != null) {
       currentNode = node;
     }
-    if (currentNode instanceof  Matrix) {
+    if (currentNode instanceof Matrix) {
       if (value) {
         v = value;
       }
@@ -204,11 +208,33 @@ export class manageValues {
         /*
           The dimensions attribute may be undefined.
           In that case, create a dimension array of size 1.
-         */
+        */
         let typeOfValue = this.getTypeOfValue(node);
         if (!currentNode.dimensions) {
           currentNode.dimensions = new Array();
           currentNode.dimensions.push({size: 1});
+        }
+        /*
+          Sanity check:
+          Align the size of the dimension property with
+          the size of the provided value.
+        */
+        let depth = getArrayDepth(currentNode.values);
+        let dimensionsCount = currentNode.dimensions.length;
+        while (dimensionsCount != depth) {
+          /*
+            If the size of the dimension property is less than the value size,
+            append a new item of size 1 (this value will be automatically updated later)
+            in the dimension array.
+            Else remove the last dimension array item.
+          */
+          if (dimensionsCount < depth) {
+            currentNode.dimensions.push({size: 1});
+          }
+          else {
+            currentNode.dimensions.splice(dimensionsCount-1, 1);
+          }
+          dimensionsCount = currentNode.dimensions.length;
         }
         /*
           If a scalar has a dimensions attribute, destroy it.
@@ -292,25 +318,47 @@ export class manageValues {
       let isArray = res instanceof Array;
       if (isArray) {
         if (i0 != null) {
-          for (let iter = 0; iter < res.length; iter++) {
-            let item = res[iter];
-            if (iter < i0) {
-              continue;
+          /*
+            Cube use case.
+            Put the res into a new array if it's not a cube.
+          */
+          let depth = getArrayDepth(res);
+          if (depth < 3) {
+            res = [res];
+          }
+          if (j0 != null) {
+            /*
+              Hypercube use case.
+              Put the res into a new array if it's not an hypercube.
+            */
+            let depth = getArrayDepth(res);
+            if (depth < 4) {
+              res = [res];
             }
-            if (j0 == null) {
-              res[iter] = newValue;
+          }
+          /*
+            Sanity checks for the arrays dimensions.
+            Mainly used when reshaping data structures (i.e cube to hypercube).
+          */
+          if (i0 == res.length && !(res[i0] instanceof Array)) {
+            res[i0] = new Array();
+          }
+          if (j0 == null) {
+            /*
+              Cube use case.
+              Updating the cube portion.
+            */
+            res[i0] = newValue;
+          }
+          else {
+            /*
+              Hypercube use case.
+              Updating the hypercube portion.
+            */
+            let item = res[i0];
+            if (item) {
+              item[j0] = newValue;
             }
-            else {
-              for (let iter2 = 0; iter2 < item.length; iter2++) {
-                let item2 = item[iter2];
-                if (iter2 < j0) {
-                  continue;
-                }
-                res[iter][iter2] = newValue;
-                break;
-              }
-            }
-            break;
           }
         }
       }

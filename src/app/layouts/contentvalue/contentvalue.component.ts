@@ -86,10 +86,22 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Reloads the data grid component.
+  */
+  refreshDataGrid() {
+    if (this.dataGrid && this.dataGrid.instance) {
+      /* Get the value type in case of the data structure has a shape modification. */
+      this.getValueType();
+      this.getData(this.i0, this.j0, true);
+      this.dataGrid.instance.refresh();
+    }
+  }
+
+  /*
     Text input value change handler.
     Updates the data grid. Mainly used for cubes & hypercubes.
   */
- onChange(e) {
+  onChange(e) {
     if (!e && !e.target) {
       console.error("Unable to get element, aborting...")
       return
@@ -115,7 +127,7 @@ export class ContentvalueComponent implements OnInit {
   onDecoupDataResolved(index) {
     /* Retrieve the updated data and force to refresh the data grid view. */
     this.getData(this.i0, this.j0, true);
-    this.dataGrid.instance.refresh();
+    this.refreshDataGrid();
   }
 
   updateDecoupData(decoupData) {
@@ -698,7 +710,7 @@ export class ContentvalueComponent implements OnInit {
               if (item) {
                 let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
                 if (cellValue == null) {
-                  // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                  // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                   cellValue = 0;
                 }
                 if (operation == operationKind.AddData) {
@@ -725,7 +737,7 @@ export class ContentvalueComponent implements OnInit {
                 if (item) {
                   let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
                   if (cellValue == null) {
-                    // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                    // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                     cellValue = 0;
                   }
                   if (operation == operationKind.AddData) {
@@ -751,7 +763,7 @@ export class ContentvalueComponent implements OnInit {
             if (item) {
               let cellValue = this.computeColumnCellValueFromNeighbours(position, item);
               if (cellValue == null) {
-                // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                 cellValue = 0;
               }
               if (operation == operationKind.AddData) {
@@ -887,6 +899,295 @@ export class ContentvalueComponent implements OnInit {
   }
 
   /*
+    Transforms matrix data to cube data.
+  */
+  transformMatrixToCubeData(currentData) {
+    let newDimensionData = 0;
+    let newData = null;
+    let dataId = 1;
+    if (currentData) {
+      newData = new Array();
+      let dataArray = new Array();
+      let dataIdStr = "" + dataId;
+      dataArray.push(dataIdStr);
+      for (let iterData = 0; iterData < currentData.length; iterData++) {
+        let utilDataItem = null;
+        let dataItem = currentData[iterData];
+        if (dataItem) {
+          utilDataItem = dataItem.slice(1, dataItem.length);
+          if (utilDataItem) {
+            dataArray.push(utilDataItem);
+          }
+        }
+      }
+      let newValueArray = null;
+      dataId++;
+      if (dataArray && dataArray.length > 0) {
+        newData.push(dataArray);
+        let dataArray2 = new Array();
+        let dataIdStr = "" + dataId;
+        dataArray2.push(dataIdStr);
+        for (let iter = 1; iter <= dataArray.length; iter++) {
+          let dataItem = dataArray[iter];
+          if (dataItem) {
+            newValueArray = new Array();
+            for (let iterCol = 0; iterCol < dataItem.length; iterCol++) {
+              newValueArray.push(newDimensionData);
+            }
+            dataArray2.push(newValueArray);
+          }
+        }
+        newData.push(dataArray2);
+      }
+    }
+    return newData;
+  }
+
+  /*
+    Transforms cube data to hypercube data.
+  */
+  transformCubeToHypercubeData(currentData) {
+    let newDimensionData = 0;
+    let newData = null;
+    let dataId = 1;
+    let dataArray2 = null;
+    if (currentData) {
+      newData = new Array();
+      let dataArray = new Array();
+      let dataIdStr = "" + dataId;
+      dataArray.push(dataIdStr);
+      for (let iterData = 0; iterData < currentData.length; iterData++) {
+        let utilDataItem = null;
+        let dataItem = currentData[iterData];
+        if (dataItem) {
+          utilDataItem = dataItem.slice(1, dataItem.length);
+          if (utilDataItem) {
+            dataArray.push(utilDataItem);
+          }
+        }
+      }
+      let newValueArray = null;
+      dataId++;
+      if (dataArray && dataArray.length > 0) {
+        newData.push(dataArray);
+        let dataArray3 = new Array();
+        let dataIdStr = "" + dataId;
+        dataArray3.push(dataIdStr);
+        let dataItem = dataArray.slice(1, dataArray.length);
+        let rowsCount = dataItem.length;
+        for (let iter = 0; iter < rowsCount; iter++) {
+          if (dataItem) {
+            dataArray2 = new Array();
+            for (let iterRow = 0; iterRow < dataItem[0].length; iterRow++) {
+              let colCount = dataItem[iter].length;
+              if (dataItem[iter][0] && dataItem[iter][0] instanceof Array) {
+                colCount = dataItem[iter][0].length;
+              }
+              newValueArray = new Array();
+              for (let iterCol = 0; iterCol < colCount; iterCol++) {
+                newValueArray.push(newDimensionData);
+              }
+              dataArray2.push(newValueArray);
+            }
+          }
+          if (iter < rowsCount) {
+            dataArray3.push(dataArray2)
+          }
+        }
+        newData.push(dataArray3);
+      }
+    }
+    return newData;
+  }
+
+  /*
+    Add dimension handler.
+  */
+  onAddDimension(dimensionsCount?) {
+    let data = this.getData(null, null, true);
+    if (data) {
+      let valueType = this.getValueType();
+      /* For scalars & vectors, add a new row. */
+      if (valueType == "value" || valueType == "valuesVect") {
+        if (dimensionsCount > 0) {
+          this.onAddRow(1);
+        }
+      }
+      else if (valueType == "valuesMatrix") {
+        /*
+          Creating the new dimension data.
+        */
+        let cubeData = this.transformMatrixToCubeData(data);
+        if (cubeData) {
+          /*
+            Extracting the useful data in order to update the current node value.
+          */
+          let usefulData = this.extractUsefulData(cubeData);
+          if (usefulData) {
+            for (let iter = 0; iter < usefulData.length; iter++) {
+              let item = usefulData[iter];
+              if (item) {
+                /*
+                  Setting the cube portions for the current node.
+                  As the current data structure becomes a cube we force its type.
+                */
+                this.sdsService.setCurrentValue(item, iter, 0, null, "valuesCube");
+              }
+            }
+          }
+        }
+      }
+      else if (valueType == "valuesCube") {
+        /*
+          Creating the new dimension data.
+        */
+        let hypercubeData = this.transformCubeToHypercubeData(data);
+        if (hypercubeData) {
+          /*
+            Extracting the useful data in order to update the current node value.
+          */
+          let usefulData = this.extractUsefulData(hypercubeData);
+          if (usefulData) {
+            for (let iterJ = 0; iterJ < usefulData.length; iterJ++) {
+              let item = usefulData[iterJ];
+              if (item) {
+                for (let iterI = 0; iterI < item.length; iterI++) {
+                  let item2 = item[iterI];
+                  if (item2) {
+                    /*
+                      Setting the hypercube portions for the current node.
+                      As the current data structure becomes an hypercube we force its type.
+                    */
+                    this.sdsService.setCurrentValue(item2, iterJ, iterI, null, "valuesHyperCube");
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      this.refreshDataGrid();
+    }
+  }
+
+  /*
+    Transforms a cube data to a matrix data.
+  */
+  transformCubeToMatrixData(currentData) {
+    let newData = null;
+    let dataId = 1;
+    if (currentData) {
+      newData = new Array();
+      let dataIdStr = "" + dataId;
+      let dataItem = currentData[0];
+      if (dataItem) {
+        for (let iter = 0; iter < dataItem.length; iter++) {
+          let dataArray = new Array();
+          let item = dataItem[iter];
+          if (item) {
+            if (item instanceof Array) {
+              dataArray.push(dataIdStr);
+              for (let iterCol = 0; iterCol < item.length; iterCol++) {
+                let itemValue = item[iterCol];
+                if (itemValue != null) {
+                  dataArray.push(itemValue);
+                }
+              }
+              dataId++;
+              dataIdStr = "" + dataId;
+              if (dataArray.length > 1) {
+                newData.push(dataArray);
+              }
+            }
+          }
+        }
+      }
+    }
+    return newData;
+  }
+
+  /*
+    Transforms an hyper cube data to a cube data.
+    This is exactly the same transformation from cube to matrix.
+  */
+  transformHypercubeToCubeData(currentData) {
+    return this.transformCubeToMatrixData(currentData);
+  }
+
+  /*
+    Delete dimension handler.
+  */
+  onDeleteDimension(dimensionsCount?) {
+    let data = this.getData(null, null, true);
+    if (data) {
+      let valueType = this.getValueType();
+      let columnsCount = this.sdsService.getValueDim(1);
+      let rowsCount = this.sdsService.getValueDim(2);
+      if (valueType == "value" || valueType == "valuesVect") {
+        if (dimensionsCount > 0) {
+          this.onDeleteRow(1);
+        }
+        else {
+          /*
+            Delete all the columns except the first one (in reverse: deleting the last columns first).
+            Reminder: columns starts at 1.
+          */
+          for (let iter = columnsCount; iter > 1; iter--) {
+            this.onDeleteColumn(iter);
+          }
+        }
+      }
+      else if (valueType == "valuesMatrix") {
+        /*
+          Delete all the rows except the first one (in reverse: deleting the last rows first).
+          Reminder: rows starts at 0.
+        */
+        for (let iter = rowsCount; iter > 0; iter--) {
+          this.onDeleteRow(iter);
+        }
+      }
+      else if (valueType == "valuesCube") {
+        let matrixData = this.transformCubeToMatrixData(data);
+        if (matrixData) {
+          /*
+            Extracting the useful data in order to update the current node value.
+          */
+          let usefulData = this.extractUsefulData(matrixData);
+          if (usefulData) {
+            /*
+              Setting the current node value.
+              As the current data structure becomes a matrix we force its type.
+            */
+            this.sdsService.setCurrentValue(usefulData, 0, 0, null, "valuesMatrix");
+          }
+        }
+      }
+      else if (valueType == "valuesHyperCube") {
+        let cubeData = this.transformHypercubeToCubeData(data);
+        if (cubeData) {
+          /*
+            Extracting the useful data in order to update the current node value.
+          */
+          let usefulData = this.extractUsefulData(cubeData);
+          if (usefulData) {
+            for (let iter = 0; iter < usefulData.length; iter++) {
+              let item = usefulData[iter];
+              if (item) {
+                /*
+                  Setting the current node value.
+                  As the current data structure becomes a cube we force its type.
+                */
+                this.sdsService.setCurrentValue(item, iter, 0, null, "valuesCube");
+              }
+            }
+          }
+        }
+      }
+      this.refreshDataGrid();
+    }
+  }
+
+  /*
     Column creation handler.
   */
   onAddColumn(position) {
@@ -908,7 +1209,7 @@ export class ContentvalueComponent implements OnInit {
     }
     this.setColumnData(position, operation);
     this.setNodeRefsData(position, operation, direction);
-    this.dataGrid.instance.refresh();
+    this.refreshDataGrid();
   }
 
   /*
@@ -926,7 +1227,7 @@ export class ContentvalueComponent implements OnInit {
       automatically validated by resetting the array.
     */
     this.nodesToHighlightArray.length = 0;
-    this.dataGrid.instance.refresh();
+    this.refreshDataGrid();
   }
 
   /*
@@ -958,7 +1259,7 @@ export class ContentvalueComponent implements OnInit {
               else {
                 let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
                 if (cellValue == null) {
-                  // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                  // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                   cellValue = 0;
                 }
                 newData.push(cellValue);
@@ -998,7 +1299,7 @@ export class ContentvalueComponent implements OnInit {
                 else {
                   let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
                   if (cellValue == null) {
-                    // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                    // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                     cellValue = 0;
                   }
                   newData.push(cellValue);
@@ -1025,6 +1326,10 @@ export class ContentvalueComponent implements OnInit {
             pos = position;
           }
           let item = data[pos];
+          if (!item) {
+            console.error("Unable to find data item at position " + pos);
+            return;
+          }
           let itemId = item[0];
           let itemLen = item.length;
           let newData = new Array();
@@ -1037,7 +1342,7 @@ export class ContentvalueComponent implements OnInit {
             else {
               let cellValue = this.computeRowCellValueFromNeighbours(position, iterX, data);
               if (cellValue == null) {
-                // Default value is 0 for integers & booleans and false (i.e 0) for booleans.
+                // Default value is 0 for integers & floats and false (i.e 0) for booleans.
                 cellValue = 0;
               }
               newData.push(cellValue);
@@ -1081,7 +1386,7 @@ export class ContentvalueComponent implements OnInit {
     }
     this.setRowData(position, operation);
     this.setNodeRefsData(position+1, operation, direction);
-    this.dataGrid.instance.refresh();
+    this.refreshDataGrid();
   }
 
   /*
@@ -1099,7 +1404,7 @@ export class ContentvalueComponent implements OnInit {
       automatically validated by resetting the array.
     */
     this.nodesToHighlightArray.length = 0;
-    this.dataGrid.instance.refresh();
+    this.refreshDataGrid();
   }
 
   /*
