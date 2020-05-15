@@ -23,7 +23,7 @@ export const  sdtreeVide : Sdstree = {
   name: 'Rename SDS' ,
   comment: 'Please comment',
   history : {
-		'tool': 'SDSGui',
+		'tool': '',
 		'user': '',
 		'date': ''
 	},

@@ -5,7 +5,7 @@ export const Tuto: Sdstree = {
   name: 'ExempleBase' ,
   comment: 'Dico example with matrix , cube and hypercube',
   history : {
-		'tool': 'SDSGui',
+		'tool': '',
 		'user': 'X123456',
 		'date': ''
 	},

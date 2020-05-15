@@ -14,6 +14,8 @@ import {manageCurrentNode} from './manageCurrentNode';
 import {manageValues} from './manageValues';
 /* Tool version */
 export const toolVersion = "0.1";
+/* Tool name */
+export const toolName = "SDSGui";
 
 @Injectable({
   providedIn: 'root'
@@ -56,12 +58,20 @@ export class SdstreeService {
   getToolVersion() {
     return toolVersion;
   }
+
+  /* Gets the tool name. */
+  getToolName() {
+    return toolName;
+  }
+
   constructSdtreeTuto() {
     // application memory construction
     this.sds = Tuto;
     /* Update the date time when loading the mockup SDS tree. */
     let date: Date = new Date();
     this.updateDateTime(date);
+    /* Update the tool name that generate the SDS tree. */
+    this.updateToolName();
     // file memory construction
     this.zip = new JSZip();
     this.zip.file('index.json', JSON.stringify(this.sds));
@@ -773,6 +783,13 @@ export class SdstreeService {
                               formattedYear + ' ' +
                               formattedHours + ':' +
                               formattedMinutes;
+  /* Updates the SDS tool name. */
+  updateToolName() {
+    if (this.sds.history) {
+      let toolName = this.getToolName();
+      if (toolName) {
+        this.sds.history.tool = toolName;
+      }
     }
   }
 
@@ -782,6 +799,8 @@ export class SdstreeService {
     /* Update the date time when creating a new SDS tree. */
     let date: Date = new Date();
     this.updateDateTime(date);
+    /* Update the tool name that generate the SDS tree. */
+    this.updateToolName();
     this.zip = new JSZip();
     this.zip.file('index.json', JSON.stringify(this.sds));
     this.nv = new transformSdsTreeToNavTree(this.sds);
