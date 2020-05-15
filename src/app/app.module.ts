@@ -31,6 +31,7 @@ import { AboutComponent } from './dialogs/about/about.component';
 import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.component';
 import {DxDataGridModule} from 'devextreme-angular';
 import {DxNumberBoxModule} from 'devextreme-angular';
+import { DataModelBrowserComponent } from './dialogs/data-model-browser/data-model-browser.component';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {DxNumberBoxModule} from 'devextreme-angular';
     ContentpropComponent,
     ContentvalueComponent,
     AboutComponent,
-    ContextmenuComponent
+    ContextmenuComponent,
+    DataModelBrowserComponent
   ],
   imports: [
     BrowserModule,

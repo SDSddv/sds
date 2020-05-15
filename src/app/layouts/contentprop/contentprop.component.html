@@ -118,13 +118,50 @@
             <div class="dx-field-label">Scale {{I+1}}</div>
             <div class="dx-field-value">
               <td style="width: 100%;">
-                <dx-text-box [(value)]=dimI.scale (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionScale'}">
+                <dx-text-box [(value)]=dimI.scale (onInitialized)="onScalePathInitialized($event, I)" (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionScale'}">
                   <dx-validator>
                     <dxi-validation-rule type="custom" message="Scale is required" [validationCallback]="validationCallback"></dxi-validation-rule>
                   </dx-validator>
                 </dx-text-box>
               </td>
-              <td style="width: 100%;">
+              <td>
+                <dx-button
+                  icon="activefolder"
+                  hint="Browse"
+                  (onClick)="onScaleBrowse($event, I)">
+                </dx-button>
+                <dx-popup
+                  [width]="300"
+                  [height]="600"
+                  [showTitle]="true"
+                  title="Choose the scale node"
+                  [closeOnOutsideClick]="true"
+                  [(visible)]= "loadDataModelBrowser" >
+                  <app-data-model-browser></app-data-model-browser>
+                  <div style="text-align: center; display:block;">
+                    <td style="float: left;">
+                      <dx-button
+                        class="browserButtons"
+                        icon="check"
+                        hint="Validate selection"
+                        disabled="true"
+                        (onInitialized)="onScaleBrowserButtonInitialized($event, I)"
+                        (onClick)="onSelectionValidated($event)">
+                      </dx-button>
+                    </td>
+                    <td style="float: right;">
+                      <dx-button
+                        id="{{I}}"
+                        class="browserButtons"
+                        icon="close"
+                        hint="Cancel selection"
+                        (onClick)="onSelectionCanceled($event)">
+                      </dx-button>
+                    </td>
+                  </div>
+                </dx-popup>
+              </td>
+              <td>
                 <dx-button
                   icon="trash"
                   hint="Delete scale property"

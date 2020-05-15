@@ -9,6 +9,7 @@
           [bounceEnabled]="pullDown"
           [reachBottomText]="reachBottomText">
           <dx-tree-view
+             class="mainTreeView"
              [dataSource]="hierarchicalData()"
              [searchEnabled]="true"
              (onItemClick)="selectItem($event)"

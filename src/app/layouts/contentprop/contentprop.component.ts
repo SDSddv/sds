@@ -19,8 +19,11 @@ export class ContentpropComponent implements OnInit {
   private groupItem = null;
   private currentNode = null;
   private isFormValid = true;
-
+  loadDataModelBrowser: boolean = false;
+  browsedScalePosition: number = null;
   allowedDataTypes = dataTypes;
+  scaleTextBoxArray: any[] = null;
+  scaleBrowserButtonArray: any[] = null;
 
   constructor(private sdsService: SdstreeService) {
     this.sdsService.setContentPropInstance(this);
@@ -184,6 +187,111 @@ export class ContentpropComponent implements OnInit {
           if (contentValueInstance) {
             contentValueInstance.refreshDataGrid();
           }
+        }
+      }
+    }
+  }
+
+  /*
+    Scale text boxes initialization handler.
+  */
+  onScalePathInitialized(e, position) {
+    /*
+      Initialize tha scale text box array with the widget descriptor and its position.
+    */
+    if (!this.scaleTextBoxArray) {
+      this.scaleTextBoxArray = new Array();
+    }
+    this.scaleTextBoxArray.push({widget: e.component, position: position});
+  }
+
+  /*
+    Scale browser buttons initialization handler.
+  */
+  onScaleBrowserButtonInitialized(e, position) {
+    if (!this.scaleBrowserButtonArray) {
+      this.scaleBrowserButtonArray = new Array();
+    }
+    this.scaleBrowserButtonArray[position] = e.component;
+  }
+
+  /*
+    Clears the scale browser buttons array.
+  */
+  resetScaleBrowserButtonArray() {
+    if (this.scaleBrowserButtonArray && this.scaleBrowserButtonArray.length > 0) {
+      this.scaleBrowserButtonArray.length = 0;
+    }
+  }
+
+  /*
+    Browse scale path handler.
+  */
+  onScaleBrowse(e, position) {
+    /* Toggle the popup display. */
+    this.loadDataModelBrowser = !this.loadDataModelBrowser;
+    /* Memorize the scale index that is browsed. */
+    this.browsedScalePosition = position;
+    /* Disable all the validation buttons. */
+    if (this.scaleBrowserButtonArray) {
+      for (let iter = 0; iter < this.scaleBrowserButtonArray.length; iter++) {
+        this.scaleBrowserButtonArray[iter].option("disabled", true);
+      }
+    }
+  }
+
+  /*
+    Browser validation click handler.
+  */
+  onSelectionValidated(e) {
+    let valueUpdated: boolean = false;
+    if (this.scaleTextBoxArray) {
+      /* Retrieve the text box widget from the clicked scale browser button index. */
+      for (let iter = 0; iter < this.scaleTextBoxArray.length; iter++) {
+        let scaleTextBox = this.scaleTextBoxArray[iter];
+        if (scaleTextBox) {
+          if (scaleTextBox.position != this.browsedScalePosition) {
+            continue;
+          }
+          let widget = scaleTextBox.widget;
+          if (widget) {
+            /* Get the path of the selected node. */
+            let path = this.sdsService.getBrowsedScalePath();
+            if (path) {
+              /* Update the text box widget value. */
+              widget.option("value", path);
+              valueUpdated = true;
+            }
+          }
+        }
+      }
+    }
+    /* Hide the browser popup. */
+    this.loadDataModelBrowser = false;
+    /* If a scale value has been updated, auto submit the form. */
+    if (valueUpdated) {
+      this.userFrm.ngSubmit.emit();
+    }
+  }
+
+  /*
+    Browser cancelation click handler.
+  */
+  onSelectionCanceled(e) {
+    /* Hide the browser popup. */
+    this.loadDataModelBrowser = false;
+  }
+
+  /*
+    Allows the scale browser validation button to be enabled.
+  */
+  allowScaleValidation(enable) {
+    if (this.scaleBrowserButtonArray) {
+      for (let iter = 0; iter < this.scaleBrowserButtonArray.length; iter++) {
+        /* Enable the validation button. */
+        let button = this.scaleBrowserButtonArray[iter];
+        if (button) {
+          button.option("disabled", !enable);
         }
       }
     }

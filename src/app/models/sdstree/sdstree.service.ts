@@ -47,6 +47,7 @@ export class SdstreeService {
   private pendingData = null;
   private resolvedDataIdx = 0;
   private scaledMatrixArray = null;
+  private browsedScalePath = null;
 
   // By default SDS begin by loading the tutorial
   constructor() {
@@ -834,6 +835,34 @@ export class SdstreeService {
     }
   }
 
+  /*
+    Gets the last browsed scale path.
+  */
+  getBrowsedScalePath() {
+    return this.browsedScalePath;
+  }
+
+  /*
+    Sets the last browsed scale path.
+  */
+  setBrowsedScalePath(path) {
+    let enable = false;
+    this.browsedScalePath = path;
+    let contentPropInstance = this.getContentPropInstance();
+    if (contentPropInstance) {
+      const idx = path.lastIndexOf("/") + 1;
+      let nodeName = path.substr(idx);
+      let node = this.getNodeByName(this.navtree, nodeName);
+      if (node) {
+        let isData = this.isDataStructure(node);
+        if (isData) {
+          enable = true;
+        }
+      }
+      contentPropInstance.allowScaleValidation(enable);
+    }
+  }
+
   /* Updates the SDS tool name. */
   updateToolName() {
     if (this.sds.history) {
@@ -1048,6 +1077,7 @@ export class SdstreeService {
     */
     let contentPropInstance = this.getContentPropInstance();
     if (contentPropInstance) {
+      contentPropInstance.resetScaleBrowserButtonArray();
       contentPropInstance.updateFormData();
       /*
         FIXME: this is a hack to not auto submit the form
