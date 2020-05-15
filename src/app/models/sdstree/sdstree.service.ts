@@ -155,10 +155,23 @@ export class SdstreeService {
     return null
   }
 
+  /*
+    Adds an icon in the tree view for the provided node.
+  */
   addNodeIcon(nodeName: string, iconName: string) {
     let node = this.getNodeByName(this.navtree, nodeName);
     if (node) {
       this.treeViewInstance.addIcon(node, iconName);
+    }
+  }
+
+  /*
+    Removes any icon in the tree view for the provided node.
+  */
+  removeNodeIcon(nodeName: string) {
+    let node = this.getNodeByName(this.navtree, nodeName);
+    if (node) {
+      this.treeViewInstance.removeIcon(node);
     }
   }
 

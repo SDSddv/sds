@@ -248,6 +248,15 @@ export class ContentvalueComponent implements OnInit {
       this.columnElementHighlight(element, type, index, styleOperation.Dishighlight);
     }
     this.columnElementArray.length = 0;
+
+    /* Remove the warning icons in the navtree when validating data. */
+    for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+      let item = this.nodesToHighlightArray[iter];
+      if (item) {
+        this.sdsService.removeNodeIcon(item.node);
+      }
+    }
+
     /*
       Reset the nodes to highlight array when any column has been validated.
     */
@@ -266,6 +275,15 @@ export class ContentvalueComponent implements OnInit {
       this.rowElementHighlight(element, type, index, styleOperation.Dishighlight);
     }
     this.rowElementArray.length = 0;
+
+    /* Remove the warning icons in the navtree when validating data. */
+    for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+      let item = this.nodesToHighlightArray[iter];
+      if (item) {
+        this.sdsService.removeNodeIcon(item.node);
+      }
+    }
+
     /*
       Reset the nodes to highlight array when any row has been validated.
     */
