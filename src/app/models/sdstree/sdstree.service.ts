@@ -926,12 +926,18 @@ export class SdstreeService {
 
   updateSDS(s: string) {
     // console.log('dans updateSDS = '+s);
-    this.sds = JSON.parse(s);
-    this.nv = new transformSdsTreeToNavTree(this.sds);
-    this.navtree = this.nv.navtree;
-    this.mapMatrix = this.nv.mapMatrix;
-    /* Select the SDS root node when the JSON index has been loaded. */
-    this.setCurrentNode('d0');
+    try {
+      this.sds = JSON.parse(s);
+      this.nv = new transformSdsTreeToNavTree(this.sds);
+      this.navtree = this.nv.navtree;
+      this.mapMatrix = this.nv.mapMatrix;
+      /* Select the SDS root node when the JSON index has been loaded. */
+      this.setCurrentNode('d0');
+    }
+    catch(e) {
+      let error = "index.json file has not a valid JSON format."
+      this.onLoadError(error);
+    }
   }
 
   getMatrixName(matrixPath) {
