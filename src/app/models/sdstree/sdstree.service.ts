@@ -40,6 +40,7 @@ export class SdstreeService {
   private treeViewItem = null; // Last item that was right clicked on the tree view
   private treeViewInstance = null; // Tree view component instance
   private menusComponentInstance = null; // The menus component instance
+  private loggerComponentInstance = null; // The menus component instance
   private managedNodes = null;
   private lastEditedCellData = null;
   private contentPropInstance = null; // Content property component instance
@@ -121,6 +122,24 @@ export class SdstreeService {
   /* Gets the content value widget instance. */
   getContentValueInstance() {
     return this.contentValueInstance;
+  }
+
+  /* Sets the logger widget instance. */
+  setLoggerInstance(instance) {
+    this.loggerComponentInstance = instance;
+  }
+
+  /* Gets the logger widget instance. */
+  getLoggerInstance() {
+    return this.loggerComponentInstance;
+  }
+
+  /* Adds a new log message in the logger component. */
+  addLog(level, message) {
+    let logger = this.getLoggerInstance();
+    if (logger) {
+      logger.addLog(level, message);
+    }
   }
 
   /* Gets the node matching the provided identifier in a nodes list. */

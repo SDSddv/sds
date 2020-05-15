@@ -1,0 +1,44 @@
+<div class="list-container">
+  <dx-toolbar>
+  <dxi-item location="center"
+            widget="dxButton"
+            locateInMenu="never">
+    <div *dxTemplate>
+      <div class='toolbar-label'><b>Information</b></div>
+    </div>
+  </dxi-item>
+  <dxi-item location="after"
+            widget="dxSelectBox"
+            locateInMenu="never"
+            [options]="selectBoxOptions">
+  </dxi-item>
+  <dxi-item location="after"
+            widget="dxButton"
+            locateInMenu="never"
+            [options]="exportButtonOptions">
+  </dxi-item>
+  <dxi-item location="after"
+            widget="dxButton"
+            locateInMenu="never"
+            [options]="clearButtonOptions">
+  </dxi-item>
+  </dx-toolbar>
+  <dx-list id="loggerContainer"
+         [items]="getLoggerItems()"
+         [useNativeScrolling]="false"
+         [showScrollbar]="always"
+         [noDataText]=null
+         height="100%"
+         (onInitialized)="onInitialized($event)">
+    <div *dxTemplate="let item of 'item'">
+      <div class="item">
+        <td>
+          <dx-button class="icon" [disabled]="true" icon="{{item.icon}}"></dx-button>
+        </td>
+        <td class="text">
+          {{item.text}}
+        </td>
+      </div>
+    </div>
+  </dx-list>
+</div>

@@ -31,6 +31,9 @@ import { AboutComponent } from './dialogs/about/about.component';
 import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.component';
 import {DxDataGridModule} from 'devextreme-angular';
 import {DxNumberBoxModule} from 'devextreme-angular';
+import {DxListModule} from 'devextreme-angular';
+import {DxToolbarModule} from 'devextreme-angular';
+import { LoggerComponent } from './layouts/logger/logger.component';
 import { DataModelBrowserComponent } from './dialogs/data-model-browser/data-model-browser.component';
 
 @NgModule({
@@ -46,6 +49,7 @@ import { DataModelBrowserComponent } from './dialogs/data-model-browser/data-mod
     ContentvalueComponent,
     AboutComponent,
     ContextmenuComponent,
+    LoggerComponent,
     DataModelBrowserComponent
   ],
   imports: [
@@ -65,6 +69,8 @@ import { DataModelBrowserComponent } from './dialogs/data-model-browser/data-mod
     DxSelectBoxModule,
     DxDataGridModule,
     DxNumberBoxModule,
+    DxListModule,
+    DxToolbarModule,
     TableModule
   ],
   providers: [ScreenService, AppInfoService, MessageService],
