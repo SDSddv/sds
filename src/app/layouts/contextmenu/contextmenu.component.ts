@@ -8,7 +8,8 @@ import {SdstreeService} from '../../models/sdstree/sdstree.service';
 })
 
 export class ContextmenuComponent implements OnInit {
-
+  groupFreeId = 0;
+  dataStructureFreeId = 0;
   constructor(private sdsService: SdstreeService) { }
 
   ngOnInit() {
@@ -44,19 +45,19 @@ export class ContextmenuComponent implements OnInit {
   /* Before the context menu is shown, build dynamically the menu items. */
   onShowing(e) {
     let treeViewItem = this.sdsService.getTreeViewItem();
-    let isMatrix = this.sdsService.isMatrix(treeViewItem)
+    let isDataStructure = this.sdsService.isDataStructure(treeViewItem)
     let isGroup = this.sdsService.isGroup(treeViewItem)
-    if (!isGroup && !isMatrix) { /* Root node use case. */
+    if (!isGroup && !isDataStructure) { /* Root node use case. */
       if (e.component) {
         e.component.option('items', this.sdsContextMenuItems);
       }
     }
-    else if (isGroup && !isMatrix) { /* Group use case. */
+    else if (isGroup && !isDataStructure) { /* Group use case. */
       if (e.component) {
         e.component.option('items', this.groupContextMenuItems);
       }
     }
-    else if (isMatrix) { /* Matrix use case. */
+    else if (isDataStructure) { /* Data structure use case. */
       if (e.component) {
         e.component.option('items', this.matrixContextMenuItems);
       }
@@ -68,11 +69,15 @@ export class ContextmenuComponent implements OnInit {
     let treeViewItem = this.sdsService.getTreeViewItem();
     if (e.itemData.text == "Group") {
       console.log("Creating group node for " + treeViewItem.id);
-      this.sdsService.createGroupNode(treeViewItem, "new group");
+      let groupName = "new group " + this.groupFreeId;
+      this.sdsService.createGroupNode(treeViewItem, groupName);
+      this.groupFreeId++;
     }
     else if (e.itemData.text == "Data") {
       console.log("Creating data structure node for " + treeViewItem.id);
-      this.sdsService.createDataStructureNode(treeViewItem, "new data");
+      let dataStructureName = "new data " + this.dataStructureFreeId;
+      this.sdsService.createDataStructureNode(treeViewItem, dataStructureName);
+      this.dataStructureFreeId++;
     }
     else if (e.itemData.text == "Delete") {
       console.log("Deleting node " + treeViewItem.id);

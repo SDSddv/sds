@@ -264,28 +264,30 @@ export class SdstreeService {
     return freeNodeId
   }
 
-  /* Checks if the provided node is a matrix or not. */
-  isMatrix(node) {
+  /* Checks if the provided node is a data structure or not. */
+  isDataStructure(node) {
     if (node) {
-      let id = node.id
-      let match = id.match(/(\w+)([m]\d+)/);
-      if (match) {
-        return true
+      let id = node.id;
+      if (id != null) {
+        let match = id.match(/(\w+)([m]\d+)/);
+        if (match) {
+          return true;
+        }
       }
     }
-    return false
+    return false;
   }
 
   /* Checks if the provided node is a group or not. */
   isGroup(node) {
     if (node) {
-      let id = node.id
+      let id = node.id;
       let match = id.match(/(\w+)([g]\d+)/);
       if (match) {
-        return true
+        return true;
       }
     }
-    return false
+    return false;
   }
 
   /*
@@ -417,7 +419,7 @@ export class SdstreeService {
       const index = parentNode.items.findIndex(item => item.id === nodeId);
       let childNode = parentNode.items[index];
       parentNode.items.splice(index, 1);
-      if (this.isMatrix(childNode)) {
+      if (this.isDataStructure(childNode)) {
         let navtreeTransformInstance = new transformNavTreeToSdsTree(this.sds);
         navtreeTransformInstance.deleteMatrix(parentNode, nodeId);
         this.updateZip();
@@ -577,7 +579,7 @@ export class SdstreeService {
   }
 
   /* Updates the matrix map keys according to the provided new node name. */
-  updateMatrixMap(currentName, newName, isMatrix) {
+  updateMatrixMap(currentName, newName, isDataStructure) {
     if (currentName &&
         newName &&
         this.curNode.mapMatrix) {
@@ -603,7 +605,7 @@ export class SdstreeService {
           }
           else {
             /* If the item is a matrix, do not process anything. */
-            if (!isMatrix) {
+            if (!isDataStructure) {
               let newKey = prefix + nodeName.replace(currentName, newName);
               let val = value.values;
               if (val && (typeof val == 'string')) {
@@ -723,7 +725,7 @@ export class SdstreeService {
   /*
     Updates the scales references in the SDS tree for a given node name.
   */
-  updateScaleRefs(currentNodeName, newNodeName, isMatrix) {
+  updateScaleRefs(currentNodeName, newNodeName, isDataStructure) {
     if (currentNodeName &&
         newNodeName &&
         (currentNodeName != newNodeName)) {
@@ -749,7 +751,7 @@ export class SdstreeService {
             /* Replace all the scale references in the SDS tree. */
             this.updateScaleRefsByPath(currentScalePath, newScalePath);
             /* Update the matrix map. */
-            this.updateMatrixMap(currentNodeName, newNodeName, isMatrix);
+            this.updateMatrixMap(currentNodeName, newNodeName, isDataStructure);
             /* Update the zip file. */
             this.updateZip();
           }
