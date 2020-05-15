@@ -12,6 +12,8 @@ import {transformSdsTreeToNavTree} from './transformSdsTreeToNavTree';
 import {transformNavTreeToSdsTree} from './transformNavTreeToSdsTree';
 import {manageCurrentNode} from './manageCurrentNode';
 import {manageValues} from './manageValues';
+import {getFormattedCurrentDateTime} from './common';
+
 /* Tool version */
 export const toolVersion = "0.1";
 /* Tool name */
@@ -68,8 +70,7 @@ export class SdstreeService {
     // application memory construction
     this.sds = Tuto;
     /* Update the date time when loading the mockup SDS tree. */
-    let date: Date = new Date();
-    this.updateDateTime(date);
+    this.updateDateTime();
     /* Update the tool name that generate the SDS tree. */
     this.updateToolName();
     // file memory construction
@@ -785,19 +786,25 @@ export class SdstreeService {
     return this.treeViewItem
   }
 
-  /* Updates the SDS history date time according to the provided date object. */
-  updateDateTime(date: Date) {
-    if (date && this.sds.history) {
-      let formattedDay = ('0' + date.getDate()).slice(-2);
-      let formattedMonth = (date.getMonth() < 10 ? "0" : "") + (date.getMonth() + 1);
-      let formattedYear = date.getFullYear().toString().substr(2,2);
-      let formattedHours = (date.getHours() < 10 ? "0" : "") + (date.getHours());
-      let formattedMinutes = (date.getMinutes() < 10 ? "0" : "") + (date.getMinutes());
-      this.sds.history.date = formattedDay + '/' +
-                              formattedMonth + '/' +
-                              formattedYear + ' ' +
-                              formattedHours + ':' +
-                              formattedMinutes;
+  /* Updates the SDS history date time. */
+  updateDateTime() {
+    if (this.sds.history) {
+      let formattedDateTime = getFormattedCurrentDateTime();
+      if (formattedDateTime) {
+        let formattedDay = formattedDateTime.day;
+        let formattedMonth = formattedDateTime.month;
+        let formattedYear = formattedDateTime.year;
+        let formattedHours = formattedDateTime.hours;
+        let formattedMinutes = formattedDateTime.minutes;
+        this.sds.history.date = formattedDay + '/' +
+        formattedMonth + '/' +
+        formattedYear + ' ' +
+        formattedHours + ':' +
+        formattedMinutes;
+      }
+    }
+  }
+
   /* Updates the SDS tool name. */
   updateToolName() {
     if (this.sds.history) {
@@ -812,8 +819,7 @@ export class SdstreeService {
   constructSdtreeVide() {
     this.sds = sdtreeVide;
     /* Update the date time when creating a new SDS tree. */
-    let date: Date = new Date();
-    this.updateDateTime(date);
+    this.updateDateTime();
     /* Update the tool name that generate the SDS tree. */
     this.updateToolName();
     this.zip = new JSZip();
