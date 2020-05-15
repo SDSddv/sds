@@ -32,13 +32,6 @@ export const  sdtreeVide : Sdstree = {
       name: 'Rename first group',
       comment: 'Please comment',
       matrices : [
-        {
-            name : 'g',
-            comment : 'gravity acceleration',
-            type : 'float',
-            unit : 'm*(s**-2)',
-            values : 9.80665
-        }
       ]
     }
   ]
