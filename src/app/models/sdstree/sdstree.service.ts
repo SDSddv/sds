@@ -407,13 +407,42 @@ export class SdstreeService {
   }
 
   /*
+     Gets the parent node id from the provided node id.
+  */
+  getParentNodeId(nodeId) {
+    let parentNodeId = null;
+    let parsedNodeId = this.parseNodeId(nodeId);
+    if (parsedNodeId) {
+      let node = Object();
+      node.id = nodeId;
+      if (this.isDataStructure(node)) {
+        let sdsId = parsedNodeId.get("sdsId");
+        let groupId = parsedNodeId.get("groupId");
+        parentNodeId = sdsId + groupId;
+      }
+      else if (this.isGroup(node)) {
+        let sdsId = parsedNodeId.get("sdsId");
+        let groupId = parsedNodeId.get("groupId");
+        let parentGroupMatch = groupId.match(/([g]\d+)/gm);
+        if (parentGroupMatch) {
+          groupId = "";
+          /* Keep all the nested groups except the last occurrence. */
+          for (let iter = 0; iter < parentGroupMatch.length-1; iter++) {
+            groupId += parentGroupMatch[iter];
+          }
+        }
+        parentNodeId = sdsId + groupId;
+      }
+    }
+    return parentNodeId;
+  }
+
+  /*
      Deletes a node from its identifier from the nodes list.
   */
   deleteNodeItem(nodeId) {
-    // The parent node identifier is obtained by slicing the child identifier.
-    // We keep all the child identifier except the last two digits.
-    // FIXME: It can contain more than 2 digits !
-    let parentNodeId = nodeId.slice(0, -2);
+    /* Searching for the parent node. */
+    let parentNodeId = this.getParentNodeId(nodeId);
     let parentNode = this.getNodeById(this.navtree, parentNodeId)
     // If no parent node is found (SDS level), do not delete the whole tree.
     if (parentNode) {
