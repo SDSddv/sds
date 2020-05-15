@@ -26,6 +26,8 @@ export class OpenComponent implements OnInit {
   }
 
   onLoadError(error) {
+    let message = "Failed to load the SDS tree (" + this.filename + " is not a valid zip archive).";
+    this.sdsService.addLog("error", message);
     let menusComponent = this.sdsService.getMenusComponentInstance();
     if (menusComponent) {
       menusComponent.hidePopup();

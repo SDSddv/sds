@@ -257,6 +257,26 @@ export class ContentvalueComponent implements OnInit {
       }
     }
 
+    /* Add a log in the logger component. */
+    let rootNode = this.sdsService.getRootNodePath();
+    for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+      let item = this.nodesToHighlightArray[iter];
+      if (item) {
+        let nodePath = this.sdsService.getNodePath("", item.node);
+        nodePath = nodePath.replace(rootNode, "");
+        let element = "row";
+        let pos = item.position;
+        if (item.direction == operationDirection.Column) {
+          element = "column";
+        }
+        else {
+          pos++;
+        }
+        let message = "The " + element + " " + pos + " has been validated for the \"" + nodePath + "\" node.";
+        this.sdsService.addLog("info", message);
+      }
+    }
+
     /*
       Reset the nodes to highlight array when any column has been validated.
     */
@@ -281,6 +301,26 @@ export class ContentvalueComponent implements OnInit {
       let item = this.nodesToHighlightArray[iter];
       if (item) {
         this.sdsService.removeNodeIcon(item.node);
+      }
+    }
+
+    /* Add a log in the logger component. */
+    let rootNode = this.sdsService.getRootNodePath();
+    for (let iter = 0; iter < this.nodesToHighlightArray.length; iter++) {
+      let item = this.nodesToHighlightArray[iter];
+      if (item) {
+        let nodePath = this.sdsService.getNodePath("", item.node);
+        nodePath = nodePath.replace(rootNode, "");
+        let element = "row";
+        let pos = item.position;
+        if (item.direction == operationDirection.Column) {
+          element = "column";
+        }
+        else {
+          pos++;
+        }
+        let message = "The " + element + " " + pos + " has been validated for the \"" + nodePath + "\" node.";
+        this.sdsService.addLog("info", message);
       }
     }
 
@@ -857,6 +897,20 @@ export class ContentvalueComponent implements OnInit {
             const index = scalePath.lastIndexOf("/") + 1;
             let scaleNodeName = scalePath.substr(index);
             this.sdsService.addNodeIcon(scaleNodeName, "warning");
+            let operationStr = "Inserted";
+            if (operation == operationKind.DeleteData) {
+              operationStr = "Deleted";
+            }
+            let message = operationStr + " the column " + position + " in the \"" + scalePath + "\" node.";
+            if (operation == operationKind.AddData) {
+              message += "\n";
+              message += "Please validate the column data."
+            }
+            let level = "info";
+            if (operation == operationKind.AddData) {
+              level = "warning";
+            }
+            this.sdsService.addLog(level, message);
           }
         }
       }
@@ -902,6 +956,29 @@ export class ContentvalueComponent implements OnInit {
             */
             this.nodesToHighlightArray.push({node: matrixRef.dataStructure.name, position: position, direction: direction});
             this.sdsService.addNodeIcon(matrixRef.dataStructure.name, "warning");
+            /* Add a log in the logger component. */
+            let element = "column";
+            if (direction == operationDirection.Row) {
+              element = "row";
+              position++;
+            }
+            let rootNode = this.sdsService.getRootNodePath();
+            let nodePath = this.sdsService.getNodePath("", matrixRef.dataStructure.name);
+            nodePath = nodePath.replace(rootNode, "");
+            let operationStr = "Inserted";
+            if (operation == operationKind.DeleteData) {
+              operationStr = "Deleted";
+            }
+            let message = operationStr + " the " + element + " " + position + " in the \"" + nodePath + "\" node.";
+            if (operation == operationKind.AddData) {
+              message += "\n";
+              message += "Please validate the " + element + " data."
+            }
+            let level = "info";
+            if (operation == operationKind.AddData) {
+              level = "warning";
+            }
+            this.sdsService.addLog(level, message);
           }
         }
       }
@@ -1228,6 +1305,14 @@ export class ContentvalueComponent implements OnInit {
     this.setColumnData(position, operation);
     this.setNodeRefsData(position, operation, direction);
     this.refreshDataGrid();
+    /* Add a log to the logger component. */
+    let rootNode = this.sdsService.getRootNodePath();
+    let nodePath = this.sdsService.getNodePath("", currentNode.name);
+    nodePath = nodePath.replace(rootNode, "");
+    let message = "Inserted the column " + position + " in the \"" + nodePath + "\" node.";
+    message += "\n";
+    message += "Please validate the column data."
+    this.sdsService.addLog("warning", message);
   }
 
   /*
@@ -1246,6 +1331,12 @@ export class ContentvalueComponent implements OnInit {
     */
     this.nodesToHighlightArray.length = 0;
     this.refreshDataGrid();
+    let currentNode = this.sdsService.getCurrentNode();
+    let rootNode = this.sdsService.getRootNodePath();
+    let nodePath = this.sdsService.getNodePath("", currentNode.name);
+    nodePath = nodePath.replace(rootNode, "");
+    let message = "Deleted the column " + position + " from the \"" + nodePath + "\" node.";
+    this.sdsService.addLog("info", message);
   }
 
   /*
@@ -1405,6 +1496,13 @@ export class ContentvalueComponent implements OnInit {
     this.setRowData(position, operation);
     this.setNodeRefsData(position+1, operation, direction);
     this.refreshDataGrid();
+    let rootNode = this.sdsService.getRootNodePath();
+    let nodePath = this.sdsService.getNodePath("", currentNode.name);
+    nodePath = nodePath.replace(rootNode, "");
+    let message = "Inserted the row " + (position+1) + " in the \"" + nodePath + "\" node.";
+    message += "\n";
+    message += "Please validate the row data."
+    this.sdsService.addLog("warning", message);
   }
 
   /*
@@ -1423,6 +1521,12 @@ export class ContentvalueComponent implements OnInit {
     */
     this.nodesToHighlightArray.length = 0;
     this.refreshDataGrid();
+    let currentNode = this.sdsService.getCurrentNode();
+    let rootNode = this.sdsService.getRootNodePath();
+    let nodePath = this.sdsService.getNodePath("", currentNode.name);
+    nodePath = nodePath.replace(rootNode, "");
+    let message = "Deleted the row " + (position+1) + " from the \"" + nodePath + "\" node.";
+    this.sdsService.addLog("info", message);
   }
 
   /*

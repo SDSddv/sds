@@ -82,6 +82,7 @@ export class SdstreeService {
     this.nv = new transformSdsTreeToNavTree(this.sds);
     this.navtree = this.nv.navtree;
     this.mapMatrix = this.nv.mapMatrix;
+    this.addLog("info", "Loaded the " + this.sds.name + " SDS tree.");
   }
 
   /* Sets the menus component instance. */
@@ -387,6 +388,10 @@ export class SdstreeService {
       let navtreeTransformInstance = new transformNavTreeToSdsTree(this.sds);
       navtreeTransformInstance.createMatrix(parentNode, matrixName);
       this.updateZip();
+      let nodePath = this.getNodePath("", matrixName);
+      nodePath = nodePath.replace(matrixName, "");
+      let message = "Created the \"" + matrixName + "\" data structure under the " + nodePath + " node.";
+      this.addLog("info", message);
     }
   }
 
@@ -423,6 +428,10 @@ export class SdstreeService {
       let navtreeTransformInstance = new transformNavTreeToSdsTree(this.sds);
       navtreeTransformInstance.createGroup(parentNode, groupName);
       this.updateZip();
+      let nodePath = this.getNodePath("", groupName);
+      nodePath = nodePath.replace(groupName, "");
+      let message = "Created the \"" + groupName + "\" group under the " + nodePath + " node.";
+      this.addLog("info", message);
     }
   }
 
@@ -469,15 +478,21 @@ export class SdstreeService {
       const index = parentNode.items.findIndex(item => item.id === nodeId);
       let childNode = parentNode.items[index];
       parentNode.items.splice(index, 1);
+      let nodePath = this.getNodePath("", childNode.text);
+      nodePath = nodePath.replace(childNode.text, "");
       if (this.isDataStructure(childNode)) {
         let navtreeTransformInstance = new transformNavTreeToSdsTree(this.sds);
         navtreeTransformInstance.deleteMatrix(parentNode, nodeId);
         this.updateZip();
+        let message = "Deleted the \"" + childNode.text + "\" data structure under the " + nodePath + " node.";
+        this.addLog("info", message);
       }
       else if (this.isGroup(childNode)) {
         let navtreeTransformInstance = new transformNavTreeToSdsTree(this.sds);
         navtreeTransformInstance.deleteGroup(parentNode, nodeId);
         this.updateZip();
+        let message = "Deleted the \"" + childNode.text + "\" group under the " + nodePath + " node.";
+        this.addLog("info", message);
       }
     }
   }
@@ -970,6 +985,8 @@ export class SdstreeService {
 
   /* SDS tree load error handler. */
   onLoadError(error) {
+    let message = "Failed to load the SDS tree (" + error + ").";
+    this.addLog("error", message);
   }
 
   updateSDS(s: string) {
@@ -981,6 +998,8 @@ export class SdstreeService {
       this.mapMatrix = this.nv.mapMatrix;
       /* Select the SDS root node when the JSON index has been loaded. */
       this.setCurrentNode('d0');
+      let message = "Successfully loaded the " + this.sds.name + " SDS tree.";
+      this.addLog("info", message);
     }
     catch(e) {
       let error = "index.json file has not a valid JSON format."
