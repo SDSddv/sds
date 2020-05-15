@@ -908,12 +908,20 @@ export class SdstreeService {
   // load the archive file into the zip object
   // and update SDS tree application model from de index.json file
   getJsonIndex() {
-    this.zip
-      .file('index.json')
-      .async('string')
+    let file = this.zip.file('index.json');
+    if (file) {
+      file.async('string')
       .then(data => this.updateSDS(data))
-      .catch(error => console.error(error))
-    ;
+      .catch(error => this.onLoadError(error));
+    }
+    else {
+      let error = "index.json file is not present in the ZIP archive."
+      this.onLoadError(error);
+    }
+  }
+
+  /* SDS tree load error handler. */
+  onLoadError(error) {
   }
 
   updateSDS(s: string) {
