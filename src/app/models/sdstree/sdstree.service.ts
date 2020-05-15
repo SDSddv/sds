@@ -12,6 +12,8 @@ import {transformSdsTreeToNavTree} from './transformSdsTreeToNavTree';
 import {transformNavTreeToSdsTree} from './transformNavTreeToSdsTree';
 import {manageCurrentNode} from './manageCurrentNode';
 import {manageValues} from './manageValues';
+/* Tool version */
+export const toolVersion = "0.1";
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +52,10 @@ export class SdstreeService {
     // FIXME: The initial node must be highlighted in the tree view.
   }
 
+  /* Gets the tool version number. */
+  getToolVersion() {
+    return toolVersion;
+  }
   constructSdtreeTuto() {
     // application memory construction
     this.sds = Tuto;
