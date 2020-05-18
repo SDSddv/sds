@@ -26,7 +26,7 @@
   <dx-list id="loggerContainer"
          [items]="getLoggerItems()"
          [useNativeScrolling]="false"
-         [showScrollbar]="always"
+         [showScrollbar]="scrollbarMode"
          [noDataText]=null
          height="100%"
          (onInitialized)="onInitialized($event)">

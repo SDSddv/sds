@@ -19,6 +19,7 @@ export class LoggerComponent implements OnInit {
   clearButtonInstance: any = null;
   selectBoxOptions: any;
   disableState: boolean = true;
+  scrollbarMode: string = "always";
   allowedLoggerLevels: string[] = [
     "all",
     "info",
