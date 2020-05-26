@@ -13,6 +13,7 @@ import {transformNavTreeToSdsTree} from './transformNavTreeToSdsTree';
 import {manageCurrentNode} from './manageCurrentNode';
 import {manageValues} from './manageValues';
 import {getFormattedCurrentDateTime} from './common';
+import {sdsTreeValidator} from './jsonValidator';
 
 /* Tool version */
 export const toolVersion = "0.1";
@@ -71,6 +72,17 @@ export class SdstreeService {
   constructSdtreeTuto() {
     // application memory construction
     this.sds = Tuto;
+    /* Validate the parsed JSON content against a schema. */
+    let validator = new sdsTreeValidator();
+    let validationResult = validator.validateTree(this.sds);
+    if (validationResult) {
+      for (let iter = 0; iter < validationResult.length; iter++) {
+        let errorItem = validationResult[iter];
+        if (errorItem) {
+          this.onLoadError(errorItem.message);
+        }
+      }
+    }
     /* Update the date time when loading the mockup SDS tree. */
     this.updateDateTime();
     /* Update the tool name that generate the SDS tree. */
@@ -927,9 +939,22 @@ export class SdstreeService {
   }
   // save zip object as an archive file
   saveZip() {
-    this.zip.generateAsync({type: 'base64'}).then(function(base64) {
-      location.href = 'data:application/zip;base64,' + base64;
-    });
+    /* Validate the parsed JSON content against a schema. */
+    let validator = new sdsTreeValidator();
+    let validationResult = validator.validateTree(this.sds);
+    if (validationResult) {
+      for (let iter = 0; iter < validationResult.length; iter++) {
+        let errorItem = validationResult[iter];
+        if (errorItem) {
+          this.onSaveError(errorItem.message);
+        }
+      }
+    }
+    else {
+      this.zip.generateAsync({type: 'base64'}).then(function(base64) {
+        location.href = 'data:application/zip;base64,' + base64;
+      });
+    }
   }
 
   /*
@@ -989,17 +1014,36 @@ export class SdstreeService {
     this.addLog("error", message);
   }
 
+  /* SDS tree save error handler. */
+  onSaveError(error) {
+    let message = "Failed to save the SDS tree (" + error + ").";
+    this.addLog("error", message);
+  }
+
   updateSDS(s: string) {
     // console.log('dans updateSDS = '+s);
     try {
       this.sds = JSON.parse(s);
-      this.nv = new transformSdsTreeToNavTree(this.sds);
-      this.navtree = this.nv.navtree;
-      this.mapMatrix = this.nv.mapMatrix;
-      /* Select the SDS root node when the JSON index has been loaded. */
-      this.setCurrentNode('d0');
-      let message = "Successfully loaded the " + this.sds.name + " SDS tree.";
-      this.addLog("info", message);
+      /* Validate the parsed JSON content against a schema. */
+      let validator = new sdsTreeValidator();
+      let validationResult = validator.validateTree(this.sds);
+      if (validationResult) {
+        for (let iter = 0; iter < validationResult.length; iter++) {
+          let errorItem = validationResult[iter];
+          if (errorItem) {
+            this.onLoadError(errorItem.message);
+          }
+        }
+      }
+      else {
+        this.nv = new transformSdsTreeToNavTree(this.sds);
+        this.navtree = this.nv.navtree;
+        this.mapMatrix = this.nv.mapMatrix;
+        // Select the SDS root node when the JSON index has been loaded.
+        this.setCurrentNode('d0');
+        let message = "Successfully loaded the " + this.sds.name + " SDS tree.";
+        this.addLog("info", message);
+      }
     }
     catch(e) {
       let error = "index.json file has not a valid JSON format."
