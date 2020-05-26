@@ -69,13 +69,13 @@ export class ContextmenuComponent implements OnInit {
     let treeViewItem = this.sdsService.getTreeViewItem();
     if (e.itemData.text == "Group") {
       console.log("Creating group node for " + treeViewItem.id);
-      let groupName = "new group " + this.groupFreeId;
+      let groupName = "newGroup" + this.groupFreeId;
       this.sdsService.createGroupNode(treeViewItem, groupName);
       this.groupFreeId++;
     }
     else if (e.itemData.text == "Data") {
       console.log("Creating data structure node for " + treeViewItem.id);
-      let dataStructureName = "new data " + this.dataStructureFreeId;
+      let dataStructureName = "newData" + this.dataStructureFreeId;
       this.sdsService.createDataStructureNode(treeViewItem, dataStructureName);
       this.dataStructureFreeId++;
     }
