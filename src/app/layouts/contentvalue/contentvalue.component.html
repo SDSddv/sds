@@ -1,10 +1,20 @@
 <div class="dx-fieldset" style="margin-left:0;margin-right:0;margin-bottom:0;" *ngIf="hasValues()">
   <div class="dx-fieldset-header" style="font-weight: bold; font-size: x-large;">Value</div>
+  <!--
+    FIXME_16:
+    For cubes, i & j indexes are fixed and the user can vary the k index.
+    The user wants to be able to choose the index that will vary.
+  -->
   <div *ngIf="getValueType() === 'valuesCube'" >
     <label for="#i0">(i,j,</label>
     <input type="number" id="#i0"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
     <label for="#i0">) =</label>
   </div>
+  <!--
+    FIXME_17:
+    For hypercubes, i & j indexes are fixed and the user can vary the k & l indexes.
+    The user wants to be able to choose the index that will vary.
+  -->
   <div *ngIf="getValueType() === 'valuesHyperCube'">
     <label for="#i00">(i,j,</label>
     <input type="number" id="#j0"  min="1" max="{{dimJ}}" [(ngModel)]="j0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
@@ -26,6 +36,9 @@
     (onEditingStart)="onEditingStart($event)"
     (onContentReady)="onContentReady($event)"
     (onContextMenuPreparing)="onContextMenuPreparing($event)">
+    <!--
+      FIXME_15: The horizontal scrollbar must start at the 2nd column and not the 1st one.
+    -->
     <dxo-scrolling
       columnRenderingMode="virtual">
     </dxo-scrolling>

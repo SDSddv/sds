@@ -97,7 +97,12 @@ export class SdstreeService {
     this.addLog("info", "Loaded the " + this.sds.name + " SDS tree.");
   }
 
-  /* Sets the menus component instance. */
+  /*
+    Sets the menus component instance.
+    FIXME_19:
+    Each component call these methods in order for the SDS service to communicate with them.
+    There must be another way to do that in Angular (i.e messaging or pipe mechanism...) 
+  */
   setMenusComponentInstance(instance) {
     this.menusComponentInstance = instance;
   }
@@ -107,7 +112,12 @@ export class SdstreeService {
     return this.menusComponentInstance;
   }
 
-  /* Sets the tree view widget instance. */
+  /*
+    Sets the tree view widget instance.
+    FIXME_19:
+    Each component call these methods in order for the SDS service to communicate with them.
+    There must be another way to do that in Angular (i.e messaging or pipe mechanism...) 
+  */
   setTreeViewInstance(instance) {
     this.treeViewInstance = instance;
   }
@@ -117,7 +127,12 @@ export class SdstreeService {
     return this.treeViewInstance;
   }
 
-  /* Sets the content property widget instance. */
+  /*
+    Sets the content property widget instance.
+    FIXME_19:
+    Each component call these methods in order for the SDS service to communicate with them.
+    There must be another way to do that in Angular (i.e messaging or pipe mechanism...) 
+  */
   setContentPropInstance(instance) {
     this.contentPropInstance = instance;
   }
@@ -127,7 +142,12 @@ export class SdstreeService {
     return this.contentPropInstance;
   }
 
-  /* Sets the content value widget instance. */
+  /*
+    Sets the content value widget instance.
+    FIXME_19:
+    Each component call these methods in order for the SDS service to communicate with them.
+    There must be another way to do that in Angular (i.e messaging or pipe mechanism...) 
+  */
   setContentValueInstance(instance) {
     this.contentValueInstance = instance;
   }
@@ -137,7 +157,12 @@ export class SdstreeService {
     return this.contentValueInstance;
   }
 
-  /* Sets the logger widget instance. */
+  /*
+    Sets the logger widget instance.
+    FIXME_19:
+    Each component call these methods in order for the SDS service to communicate with them.
+    There must be another way to do that in Angular (i.e messaging or pipe mechanism...) 
+  */
   setLoggerInstance(instance) {
     this.loggerComponentInstance = instance;
   }
@@ -1155,14 +1180,14 @@ export class SdstreeService {
     this.setLastEditedCell(null);
     /*
       Update form data.
-      FIXME: this shouldn't be necessary.
+      FIXME_2: this shouldn't be necessary.
     */
     let contentPropInstance = this.getContentPropInstance();
     if (contentPropInstance) {
       contentPropInstance.resetScaleBrowserButtonArray();
       contentPropInstance.updateFormData();
       /*
-        FIXME: this is a hack to not auto submit the form
+        FIXME_3: this is a hack to not auto submit the form
         when select box content is updated when changing the
         current node in the tree view.
       */

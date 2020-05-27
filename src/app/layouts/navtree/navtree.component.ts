@@ -53,7 +53,11 @@ export class NavtreeComponent implements OnInit {
     this.sdsService.setCurrentNode(e.itemData.id);
   }
 
-  /* Refreshes the whole tree view widget. */
+  /*
+    Refreshes the whole tree view widget.
+    FIXME_21: The navtree instance must be constantly refreshed when some node is inserted/removed.
+             Appending/removing items to currently displayed array should be sufficient.
+  */
   refreshTree() {
     if (this.treeView) {
       /*

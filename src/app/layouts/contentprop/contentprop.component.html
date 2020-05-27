@@ -5,6 +5,10 @@
         <div class="dx-field-label">Name</div>
         <div class="dx-field-value">
           <dx-text-box [(value)]=prop.name (onChange)="onChange($event)" [inputAttr]="{name: 'name'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
             <dx-validator>
               <dxi-validation-rule type="custom" message="Name is required" [validationCallback]="validationCallback"></dxi-validation-rule>
             </dx-validator>
@@ -24,6 +28,10 @@
         <div class="dx-field-label">Tool</div>
         <div class="dx-field-value">
           <dx-text-box [(value)]=prop.history.tool (onChange)="onChange($event)" [inputAttr]="{name: 'tool'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
             <dx-validator>
               <dxi-validation-rule type="custom" message="Tool is required" [validationCallback]="validationCallback"></dxi-validation-rule>
             </dx-validator>
@@ -32,6 +40,10 @@
         <div class="dx-field-label">User</div>
         <div class="dx-field-value">
           <dx-text-box [(value)]=prop.history.user (onChange)="onChange($event)" [inputAttr]="{name: 'user'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
             <dx-validator>
               <dxi-validation-rule type="custom" message="Username is required" [validationCallback]="validationCallback"></dxi-validation-rule>
             </dx-validator>
@@ -40,6 +52,10 @@
         <div class="dx-field-label">Date</div>
         <div class="dx-field-value">
           <dx-text-box [(value)]=prop.history.date (onChange)="onChange($event)" [inputAttr]="{name: 'date'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
             <dx-validator>
               <dxi-validation-rule type="custom" message="Date is required" [validationCallback]="validationCallback"></dxi-validation-rule>
             </dx-validator>
@@ -56,6 +72,10 @@
                           [value]="prop.type"
                           (onChange)="onChange($event)"
                           (onValueChanged)="onValueChanged($event)">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
             <dx-validator>
               <dxi-validation-rule type="custom" message="Type is required" [validationCallback]="validationCallback"></dxi-validation-rule>
             </dx-validator>
@@ -67,6 +87,10 @@
         <div class="dx-field-value">
           <td style="width: 100%;">
             <dx-text-box [(value)]=prop.unit (onChange)="onChange($event)" [inputAttr]="{name: 'unit'}">
+              <!--
+                FIXME_5: The dx-validator is not working as expected.
+                The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+              -->
               <dx-validator>
                 <dxi-validation-rule type="custom" message="Unit is required" [validationCallback]="validationCallback"></dxi-validation-rule>
               </dx-validator>
@@ -99,6 +123,10 @@
           <div class="dx-field-value" style="float: left;">
             <td style="width: 100%;">
               <dx-text-box [(value)]=dimI.size [disabled]="true" (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionSize'}">
+                <!--
+                  FIXME_5: The dx-validator is not working as expected.
+                  The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+                -->
                 <dx-validator>
                   <dxi-validation-rule type="custom" message="Size is required" [validationCallback]="validationCallback"></dxi-validation-rule>
                 </dx-validator>
@@ -119,6 +147,10 @@
             <div class="dx-field-value">
               <td style="width: 100%;">
                 <dx-text-box [(value)]=dimI.scale (onInitialized)="onScalePathInitialized($event, I)" (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionScale'}">
+                  <!--
+                    FIXME_5: The dx-validator is not working as expected.
+                    The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+                  -->
                   <dx-validator>
                     <dxi-validation-rule type="custom" message="Scale is required" [validationCallback]="validationCallback"></dxi-validation-rule>
                   </dx-validator>
@@ -216,6 +248,10 @@
         <td>
           <div class="dx-field-value" style="float: left;">
             <dx-text-box [(value)]=varI.name (onChange)="onChange($event)" [inputAttr]="{name: 'variantName'}">
+              <!--
+                FIXME_5: The dx-validator is not working as expected.
+                The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+              -->
               <dx-validator>
                 <dxi-validation-rule type="custom" message="Variant is required" [validationCallback]="validationCallback"></dxi-validation-rule>
               </dx-validator>
@@ -234,7 +270,7 @@
       </div>
     </div>
     <!--
-      FIXME: If a button is not added,
+      FIXME_1: If a button is not added,
       the form will never be submitted when pressing enter after editing a value.
       So adding a submit button and hide it.
     -->

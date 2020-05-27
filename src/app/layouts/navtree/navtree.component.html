@@ -21,10 +21,16 @@
   <div class="handle handle-row" ngxSplitHandle>
         <i class="material-icons">&#xE25D;</i>
   </div>
+  <!--
+    FIXME_20: The navtree web page should only deals with the navtree component.
+  -->
   <div fxFlex="65%" ngxSplitArea class="c1r1" >
     <div><app-contentpage> </app-contentpage></div>
   </div>
   <div fxFlex="20%" ngxSplitArea class="c1r1" >
+    <!--
+      FIXME_22: The logger component should be in a resizable container.
+    -->
     <div><app-logger> </app-logger></div>
   </div>
 </div>

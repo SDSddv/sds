@@ -22,6 +22,18 @@ export class sdsTreeValidator {
     Validates the provided object against a JSON schema.
     Returns null object on success.
     An array of sdsTreeValidatorError on error.
+    FIXME_17:
+    The SDS tree validation doesn’t verify the
+    following SDS validation specification requirements:
+      SDS_SSI1,
+      SDS_TYP1,
+      SDS_DEC1,
+      SDS_DEC2,
+      SDS_DEC3,
+      SDS_DEC4,
+      SDS_DIM1,
+      SDS_UNI1,
+      SDS_UNI2.
   */
   validateTree(object) {
     let validationResult: sdsTreeValidatorError[] = null;

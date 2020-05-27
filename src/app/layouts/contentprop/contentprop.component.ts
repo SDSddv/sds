@@ -313,7 +313,7 @@ export class ContentpropComponent implements OnInit {
   /*
     Updates the select box value when the user has changed
     the current node in the tree view.
-    FIXME: This shouldn't be necessary !
+    FIXME_2: This shouldn't be necessary !
   */
   updateFormData() {
     if (this.selectBox) {
@@ -342,7 +342,7 @@ export class ContentpropComponent implements OnInit {
       let currentNode = this.getCurrentNode();
       let currentSdsNode = this.sdsService.getCurrentNode();
       /*
-        FIXME: this is a hack to not auto submit the form
+        FIXME_3: this is a hack to not auto submit the form
         when select box content is updated when changing the
         current node in the tree view.
       */
@@ -358,7 +358,7 @@ export class ContentpropComponent implements OnInit {
       }
       this.userFrm.ngSubmit.emit();
       /*
-        FIXME: this is a hack to not auto submit the form
+        FIXME_3: this is a hack to not auto submit the form
         when select box content is updated when changing the
         current node in the tree view.
       */
@@ -586,7 +586,7 @@ export class ContentpropComponent implements OnInit {
     else {
       /*
         The form was auto submitted when the user has changed the type select box.
-        FIXME: weird way to do that...
+        FIXME_4: weird way to do that...
       */
       let propertiesForm = null;
       let forms = document.forms;

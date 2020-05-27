@@ -87,6 +87,8 @@ export class ContentvalueComponent implements OnInit {
 
   /*
     Reloads the data grid component.
+    FIXME_10: The data grid instance must be constantly refreshed when some data is inserted/removed.
+             Appending/removing items to currently displayed array should be sufficient.
   */
   refreshDataGrid() {
     if (this.dataGrid && this.dataGrid.instance) {
@@ -332,6 +334,7 @@ export class ContentvalueComponent implements OnInit {
 
   /*
     Gets the border style when highlighting/dishighlighting a column/row.
+    FIXME_7: This would be better to do this using a CSS class.
   */
   getBorderStyle(operation) {
     let borderColor = "";
@@ -593,7 +596,7 @@ export class ContentvalueComponent implements OnInit {
   lerp(value1: number, value2: number, distance: number) {
     let lerpValue = (((1 - distance) * value1) + (distance * value2));
     /* Avoid floating point precision error. */
-    // FIXME: Is 5 digits sufficient for the round precision ?
+    // FIXME_6: Is 5 digits sufficient for the round precision ?
     lerpValue = (Math.round(lerpValue*10000)/10000);
     return lerpValue;
   }
@@ -995,6 +998,9 @@ export class ContentvalueComponent implements OnInit {
 
   /*
     Transforms matrix data to cube data.
+    FIXME_11: A 3rd dimension is added with a size of 2.
+              The user must be able to choose the 3rd dimension size.
+    FIXME_12: The 3rd dimension newly created items must be highlighted in the data grid.
   */
   transformMatrixToCubeData(currentData) {
     let newDimensionData = 0;
@@ -1040,6 +1046,9 @@ export class ContentvalueComponent implements OnInit {
 
   /*
     Transforms cube data to hypercube data.
+    FIXME_13: A 4th dimension is added with a size of 2.
+              The user must be able to choose the 4th dimension size.
+    FIXME_14: The 4th dimension newly created items must be highlighted in the data grid.
   */
   transformCubeToHypercubeData(currentData) {
     let newDimensionData = 0;
@@ -1662,6 +1671,9 @@ export class ContentvalueComponent implements OnInit {
 
   /*
     Retrieves the data to display in the grid view.
+    FIXME_8: This method is called in an infinite loop
+             when returning a new variable memory address.
+             Returning cached data when nothing has changed.
   */
   getData(i?: number , j?: number, force?:boolean, node?) {
     if (this.sdsService) {
@@ -1682,7 +1694,7 @@ export class ContentvalueComponent implements OnInit {
             for (let iterY = 0; iterY < itemX.length; iterY++) {
               let itemY = itemX[iterY];
               /*
-                For booleans, convert true/false values to 1/0 numbers to avoid
+                FIXME_9: For booleans, convert true/false values to 1/0 numbers to avoid
                 the datagrid to display checkboxes instead of true/false strings.
               */
               if (typeof itemY == 'boolean') {
@@ -1713,6 +1725,8 @@ export class ContentvalueComponent implements OnInit {
         /*
           Return cached data to avoid
           updating the widget in an infinite loop.
+          FIXME_8: This method is called in an infinite loop
+                  when returning a new variable memory address.
         */
         return this.previousData;
       }
