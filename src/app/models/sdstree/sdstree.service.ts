@@ -16,7 +16,7 @@ import {getFormattedCurrentDateTime} from './common';
 import {sdsTreeValidator} from './jsonValidator';
 
 /* Tool version */
-export const toolVersion = "0.1";
+export const toolVersion = "0.2";
 /* Tool name */
 export const toolName = "SDSGui";
 
