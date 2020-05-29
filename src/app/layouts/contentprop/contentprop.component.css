@@ -1,0 +1,19 @@
+::ng-deep .browserButtons {
+  padding-top: 0px;
+  padding-bottom: 0px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+::ng-deep .dx-popup-content {
+  padding-top: inherit;
+}
+
+::ng-deep .dx-field-label {
+  width: 30%;
+}
+
+::ng-deep .dx-field-value {
+  width: 50%;
+  float: left;
+}

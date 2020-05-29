@@ -3,7 +3,7 @@ import {SDSNode} from './SDSNode';
 
 export class Matrix extends SDSNode {
   type: string;
-  unit: string;
+  unit ?: string;
   dimensions ?: Dimension[];
   variants ?: RefMatrix[];
   // when the number of item is greater strict than 20
@@ -13,15 +13,16 @@ export class Matrix extends SDSNode {
 
   // the following function permits to use "instanceof this class"
   static [Symbol.hasInstance](obj) {
-    if (obj.values ) { return true; }
+    if (obj.values) { return true; }
   }
 }
 export type pathInDicoDirectory = string; // a string which begin with a '/'
-export type value = number;
-export type valuesVect = number[];
-export type valuesMatrix = number[][]; // arbitrary columns view
-export type valuesCube = number[][][];
-export type valuesHyperCube = number[][][][];
+// FIXME: The following types may be (number|boolean) instead of any !
+export type value = any;
+export type valuesVect = any[];
+export type valuesMatrix = any[][]; // arbitrary columns view
+export type valuesCube = any[][][];
+export type valuesHyperCube = any[][][][];
 
 export type pathInDicoJson = string;
 export class Dimension{

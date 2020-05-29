@@ -10,10 +10,16 @@ export class RefMatrixP {
   comment ?: string ;
 }
 
+export class History {
+  tool: string;
+  user: string;
+  date: string;
+}
+
 export class Properties {
   name: string ;
   comment: string;
-  history ?: string;
+  history ?: History;
   type ?: string;
   unit ?: string;
   dimensions ?: DimensionP[];

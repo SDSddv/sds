@@ -1,24 +1,279 @@
-<p>Properties</p>
-<div *ngIf="getProperties()">
-  <label><b>name:</b> {{prop.name}} </label>
-  <label><b>comment:</b> {{prop.comment}} </label>
-  <label *ngIf="prop.history" > <b>history:</b> {{prop.history}} </label>
-  <label *ngIf="prop.type" > <b>type:</b> {{prop.type}} </label>
-  <label *ngIf="prop.unit" > <b>unit:</b> {{prop.unit}} </label>
-  <div *ngIf="prop.dimensions" >
-    <div *ngFor="let dimI of this.prop.dimensions; index as I">
-      <label> <b>dimension {{I}}:</b>
-        <b>size:</b> {{dimI.size}}
-        <div *ngIf="dimI.scale"> <b>scale:</b> {{dimI.scale}} </div>
-      </label>
+<form id="propertiesForm" #frm="ngForm" (ngSubmit)="onFormSubmit($event)">
+  <div class="dx-fieldset" style="margin:0;" *ngIf="getProperties()">
+    <div class="dx-fieldset-header" style="font-weight: bold; font-size: x-large;">Properties</div>
+    <div class="dx-field">
+        <div class="dx-field-label">Name</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.name (onChange)="onChange($event)" [inputAttr]="{name: 'name'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
+            <dx-validator>
+              <dxi-validation-rule type="custom" message="Name is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+            </dx-validator>
+          </dx-text-box>
+        </div>
     </div>
-  </div>
-  <div *ngIf="prop.variants" >
-    <div *ngFor="let dimI of this.prop.variants; index as I">
-      <label> <b>variants {{I}}:</b>
-        <b>name:</b> {{dimI.name}}
-        <div *ngIf="dimI.comment"> <b>comment:</b> {{dimI.comment}}</div>
-      </label>
+    <div class="dx-field">
+        <div class="dx-field-label">Comment</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.comment (onChange)="onChange($event)" [inputAttr]="{name: 'comment'}">
+          </dx-text-box>
+        </div>
     </div>
+    <div class="dx-fieldset" style="margin:0;" *ngIf="prop.history">
+      <div class="dx-fieldset-header">History</div>
+      <div class="dx-field" *ngIf="prop.history">
+        <div class="dx-field-label">Tool</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.history.tool (onChange)="onChange($event)" [inputAttr]="{name: 'tool'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
+            <dx-validator>
+              <dxi-validation-rule type="custom" message="Tool is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+            </dx-validator>
+          </dx-text-box>
+        </div>
+        <div class="dx-field-label">User</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.history.user (onChange)="onChange($event)" [inputAttr]="{name: 'user'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
+            <dx-validator>
+              <dxi-validation-rule type="custom" message="Username is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+            </dx-validator>
+          </dx-text-box>
+        </div>
+        <div class="dx-field-label">Date</div>
+        <div class="dx-field-value">
+          <dx-text-box [(value)]=prop.history.date (onChange)="onChange($event)" [inputAttr]="{name: 'date'}">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
+            <dx-validator>
+              <dxi-validation-rule type="custom" message="Date is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+            </dx-validator>
+          </dx-text-box>
+        </div>
+      </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.type">
+        <div class="dx-field-label">Type</div>
+        <div class="dx-field-value">
+          <dx-select-box [items]="allowedDataTypes"
+                          [inputAttr]="{name: 'type'}"
+                          placeholder="Choose the data type"
+                          [value]="prop.type"
+                          (onChange)="onChange($event)"
+                          (onValueChanged)="onValueChanged($event)">
+            <!--
+              FIXME_5: The dx-validator is not working as expected.
+              The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+            -->
+            <dx-validator>
+              <dxi-validation-rule type="custom" message="Type is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+            </dx-validator>
+          </dx-select-box>
+        </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.unit != null">
+        <div class="dx-field-label">Unit</div>
+        <div class="dx-field-value">
+          <td style="width: 100%;">
+            <dx-text-box [(value)]=prop.unit (onChange)="onChange($event)" [inputAttr]="{name: 'unit'}">
+              <!--
+                FIXME_5: The dx-validator is not working as expected.
+                The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+              -->
+              <dx-validator>
+                <dxi-validation-rule type="custom" message="Unit is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+              </dx-validator>
+            </dx-text-box>
+          </td>
+          <td>
+            <dx-button
+              icon="trash"
+              hint="Delete unit property"
+              (onClick)="onDeleteUnit($event)">
+            </dx-button>
+          </td>
+        </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.unit == null && isPropertyAllowed()">
+      <div class="dx-field-label">Unit</div>
+      <div class="dx-field-value">
+        <dx-button
+          icon="add"
+          hint="Add unit property"
+          style="float: left;"
+          (onClick)="onAddUnit($event)">
+        </dx-button>
+      </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.dimensions">
+      <div *ngFor="let dimI of this.prop.dimensions; index as I; trackBy: trackArray">
+        <div class="dx-field-label">Dimension {{I+1}}</div>
+        <td>
+          <div class="dx-field-value" style="float: left;">
+            <td style="width: 100%;">
+              <dx-text-box [(value)]=dimI.size [disabled]="true" (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionSize'}">
+                <!--
+                  FIXME_5: The dx-validator is not working as expected.
+                  The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+                -->
+                <dx-validator>
+                  <dxi-validation-rule type="custom" message="Size is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+                </dx-validator>
+              </dx-text-box>
+            </td>
+            <td style="width: 100%;">
+              <dx-button
+                icon="trash"
+                hint="Delete dimension property"
+                (onClick)="onDeleteDimension($event, I)">
+              </dx-button>
+            </td>
+          </div>
+        </td>
+        <td *ngIf="dimI.scale != null">
+          <div *ngIf="dimI.scale != null">
+            <div class="dx-field-label">Scale {{I+1}}</div>
+            <div class="dx-field-value">
+              <td style="width: 100%;">
+                <dx-text-box [(value)]=dimI.scale (onInitialized)="onScalePathInitialized($event, I)" (onChange)="onChange($event)" [inputAttr]="{name: 'dimensionScale'}">
+                  <!--
+                    FIXME_5: The dx-validator is not working as expected.
+                    The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+                  -->
+                  <dx-validator>
+                    <dxi-validation-rule type="custom" message="Scale is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+                  </dx-validator>
+                </dx-text-box>
+              </td>
+              <td>
+                <dx-button
+                  icon="activefolder"
+                  hint="Browse"
+                  (onClick)="onScaleBrowse($event, I)">
+                </dx-button>
+                <dx-popup
+                  [width]="300"
+                  [height]="600"
+                  [showTitle]="true"
+                  title="Choose the scale node"
+                  [closeOnOutsideClick]="true"
+                  [(visible)]= "loadDataModelBrowser" >
+                  <app-data-model-browser></app-data-model-browser>
+                  <div style="text-align: center; display:block;">
+                    <td style="float: left;">
+                      <dx-button
+                        class="browserButtons"
+                        icon="check"
+                        hint="Validate selection"
+                        disabled="true"
+                        (onInitialized)="onScaleBrowserButtonInitialized($event, I)"
+                        (onClick)="onSelectionValidated($event)">
+                      </dx-button>
+                    </td>
+                    <td style="float: right;">
+                      <dx-button
+                        id="{{I}}"
+                        class="browserButtons"
+                        icon="close"
+                        hint="Cancel selection"
+                        (onClick)="onSelectionCanceled($event)">
+                      </dx-button>
+                    </td>
+                  </div>
+                </dx-popup>
+              </td>
+              <td>
+                <dx-button
+                  icon="trash"
+                  hint="Delete scale property"
+                  (onClick)="onDeleteScale($event, I)">
+                </dx-button>
+              </td>
+            </div>
+          </div>
+        </td>
+        <td *ngIf="dimI.scale == null" style="width: 50%;">
+          <div *ngIf="dimI.scale == null">
+            <div class="dx-field-label">Scale {{I+1}}</div>
+            <div class="dx-field-value">
+              <dx-button
+                icon="add"
+                hint="Add scale property"
+                style="float: left;"
+                (onClick)="onAddScale($event, I)">
+              </dx-button>
+            </div>
+          </div>
+        </td>
+      </div>
+      <div *ngIf="prop.dimensions.length < getMaxDimensions()">
+        <div *ngFor="let I of getNextDimension();">
+          <div class="dx-field-label">Dimension</div>
+          <div class="dx-field-value">
+            <dx-button
+              icon="add"
+              hint="Add dimension property"
+              style="float: left;"
+              (onClick)="onAddDimension($event)">
+            </dx-button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dx-field" *ngIf="!prop.dimensions && isPropertyAllowed()">
+      <div class="dx-field-label">Dimension</div>
+      <div class="dx-field-value">
+        <dx-button
+          icon="add"
+          hint="Add dimension property"
+          style="float: left;"
+          (onClick)="onAddDimension($event)">
+        </dx-button>
+      </div>
+    </div>
+    <div class="dx-field" *ngIf="prop.variants">
+      <div *ngFor="let varI of this.prop.variants; index as I; trackBy: trackArray">
+        <div class="dx-field-label">Variant {{I+1}}</div>
+        <td>
+          <div class="dx-field-value" style="float: left;">
+            <dx-text-box [(value)]=varI.name (onChange)="onChange($event)" [inputAttr]="{name: 'variantName'}">
+              <!--
+                FIXME_5: The dx-validator is not working as expected.
+                The validationCallback is not always called each time the value of the widget is changed at runtime (especially when a property widget is inserted).
+              -->
+              <dx-validator>
+                <dxi-validation-rule type="custom" message="Variant is required" [validationCallback]="validationCallback"></dxi-validation-rule>
+              </dx-validator>
+            </dx-text-box>
+          </div>
+        </td>
+        <td style="width: 50%;">
+          <div *ngIf="varI.comment">
+            <div class="dx-field-label">Comment {{I+1}}</div>
+            <div class="dx-field-value">
+              <dx-text-box [(value)]=varI.comment (onChange)="onChange($event)" [inputAttr]="{name: 'variantComment'}">
+              </dx-text-box>
+            </div>
+          </div>
+        </td>
+      </div>
+    </div>
+    <!--
+      FIXME_1: If a button is not added,
+      the form will never be submitted when pressing enter after editing a value.
+      So adding a submit button and hide it.
+    -->
+    <button type="submit" [hidden]="true">Submit</button>
   </div>
-</div>
+</form>

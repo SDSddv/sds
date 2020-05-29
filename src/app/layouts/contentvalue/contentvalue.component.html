@@ -1,34 +1,51 @@
-<p>Value : </p>
-
-<div *ngIf="getValueType() === 'valuesCube' " >
-  <label for="#i0">(</label>
-  <input type="number" id="#i0"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel">
-  ,j,k) =
+<div class="dx-fieldset" style="margin-left:0;margin-right:0;margin-bottom:0;" *ngIf="hasValues()">
+  <div class="dx-fieldset-header" style="font-weight: bold; font-size: x-large;">Value</div>
+  <!--
+    FIXME_16:
+    For cubes, i & j indexes are fixed and the user can vary the k index.
+    The user wants to be able to choose the index that will vary.
+  -->
+  <div *ngIf="getValueType() === 'valuesCube'" >
+    <label for="#i0">(i,j,</label>
+    <input type="number" id="#i0"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
+    <label for="#i0">) =</label>
+  </div>
+  <!--
+    FIXME_17:
+    For hypercubes, i & j indexes are fixed and the user can vary the k & l indexes.
+    The user wants to be able to choose the index that will vary.
+  -->
+  <div *ngIf="getValueType() === 'valuesHyperCube'">
+    <label for="#i00">(i,j,</label>
+    <input type="number" id="#j0"  min="1" max="{{dimJ}}" [(ngModel)]="j0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
+    <label for="#j0">,</label>
+    <input type="number" id="#i00"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel" style="text-align: center;" (change)="onChange($event)">
+    ) =
+  </div>
+  <dx-data-grid
+    id="gridContainer"
+    [dataSource]="getData(i0, j0)"
+    [customizeColumns]="customizeColumns"
+    [showBorders]="true"
+    [showColumnLines]="true"
+    [showRowLines]="true"
+    [loadPanel]="loadPanelProps"
+    [columnAutoWidth]="true"
+    [columnMinWidth]="75"
+    (onCellPrepared)="onCellPrepared($event)"
+    (onEditingStart)="onEditingStart($event)"
+    (onContentReady)="onContentReady($event)"
+    (onContextMenuPreparing)="onContextMenuPreparing($event)">
+    <!--
+      FIXME_15: The horizontal scrollbar must start at the 2nd column and not the 1st one.
+    -->
+    <dxo-scrolling
+      columnRenderingMode="virtual">
+    </dxo-scrolling>
+    <dxo-paging [enabled]="false"></dxo-paging>
+    <dxo-editing
+         mode="cell"
+         [allowUpdating]="true">
+    </dxo-editing>
+  </dx-data-grid>
 </div>
-
-<div *ngIf="getValueType() === 'valuesHyperCube' " >
-  <label for="#i00">(</label>
-  <input type="number" id="#i00"  min="1" max="{{dimI}}" [(ngModel)]="i0" #name="ngModel">
-  <label for="#j0">,</label>
-  <input type="number" id="#j0"  min="1" max="{{dimJ}}" [(ngModel)]="j0" #name="ngModel">
-  ,k,l) =
-</div>
-
-<p-table [value]="getValue( i0, j0 )">
-    <ng-template pTemplate="header">
-      <tr *ngIf="!this.scalOrVect">
-        _|
-        <th *ngFor="let item of this.matrix[0]; index as j">
-            {{decoup0_col[j]}}
-        </th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-i="rowIndex">
-      <tr >
-        <div *ngIf="!this.scalOrVect"> <b> {{decoup1_lig[i]}} | </b> </div>
-        <td *ngFor="let item of this.matrix[i]; index as j">
-                {{this.matrix[i][j]}}
-        </td>
-      </tr>
-    </ng-template>
-</p-table>

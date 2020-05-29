@@ -1,13 +1,8 @@
-<div fxFlex.xs="70%" fxFlex.gt-md="50%" fxFlex.lg="60%" ngxSplitArea style="height:500px;">
+<div fxFlexFill ngxSplitArea style="height:100%;">
   <div fxLayout="column" fxFlexFill ngxSplit="column" >
-    <div fxFlex="80%"  ngxSplitArea >
-      <app-navtree></app-navtree>
-    </div>
-    <div class="handle handle-column" ngxSplitHandle>
-      <i class="material-icons">&#xE25D;</i>
-    </div>
-    <div fxFlex="20%" ngxSplitArea >
-      <div> <app-messages></app-messages></div>
+    <div fxFlex="100%"  ngxSplitArea >
+      <div><app-navtree></app-navtree></div>
+      <div><app-contextmenu></app-contextmenu></div>
     </div>
   </div>
 </div>

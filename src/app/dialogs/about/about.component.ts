@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import {SdstreeService} from '../../models/sdstree/sdstree.service';
 
 @Component({
   selector: 'app-about',
@@ -6,8 +7,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./about.component.css']
 })
 export class AboutComponent implements OnInit {
-
-  constructor() { }
+  toolVersion: string = null;
+  constructor(private sdsService: SdstreeService) {
+    this.toolVersion = this.sdsService.getToolVersion();
+  }
 
   ngOnInit() {
   }

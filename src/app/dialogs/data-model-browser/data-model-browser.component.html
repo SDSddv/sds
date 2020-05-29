@@ -1,0 +1,14 @@
+<dx-scroll-view
+  width="100%"
+  height="95%"
+  [scrollByContent]="scrollByContent"
+  [scrollByThumb]="scrollByThumb"
+  [showScrollbar]="scrollbarMode"
+  [bounceEnabled]="pullDown"
+  [reachBottomText]="reachBottomText">
+  <dx-tree-view
+    [dataSource]="getNavTree()"
+    [searchEnabled]="true"
+    (onItemClick)="selectItem($event)">
+  </dx-tree-view>
+</dx-scroll-view>

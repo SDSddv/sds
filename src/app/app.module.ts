@@ -8,7 +8,9 @@ import {
   DxMenuModule,
   DxScrollViewModule,
   DxSelectBoxModule,
-  DxTreeViewModule
+  DxTreeViewModule,
+  DxTextBoxModule,
+  DxValidatorModule
 } from 'devextreme-angular';
 import {AppInfoService, ScreenService} from './shared/services';
 import { NavtreeComponent } from './layouts/navtree/navtree.component';
@@ -26,6 +28,13 @@ import { ContentpropComponent } from './layouts/contentprop/contentprop.componen
 import { ContentvalueComponent } from './layouts/contentvalue/contentvalue.component';
 import {TableModule} from 'primeng/table';
 import { AboutComponent } from './dialogs/about/about.component';
+import { ContextmenuComponent } from './layouts/contextmenu/contextmenu.component';
+import {DxDataGridModule} from 'devextreme-angular';
+import {DxNumberBoxModule} from 'devextreme-angular';
+import {DxListModule} from 'devextreme-angular';
+import {DxToolbarModule} from 'devextreme-angular';
+import { LoggerComponent } from './layouts/logger/logger.component';
+import { DataModelBrowserComponent } from './dialogs/data-model-browser/data-model-browser.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +47,10 @@ import { AboutComponent } from './dialogs/about/about.component';
     ContentpageComponent,
     ContentpropComponent,
     ContentvalueComponent,
-    AboutComponent
+    AboutComponent,
+    ContextmenuComponent,
+    LoggerComponent,
+    DataModelBrowserComponent
   ],
   imports: [
     BrowserModule,
@@ -47,10 +59,18 @@ import { AboutComponent } from './dialogs/about/about.component';
     SplitModule,
     DxScrollViewModule,
     DxTreeViewModule,
+    DxContextMenuModule,
     DxPopupModule,
     RouterModule,
     FormsModule,
     DxButtonModule,
+    DxTextBoxModule,
+    DxValidatorModule,
+    DxSelectBoxModule,
+    DxDataGridModule,
+    DxNumberBoxModule,
+    DxListModule,
+    DxToolbarModule,
     TableModule
   ],
   providers: [ScreenService, AppInfoService, MessageService],

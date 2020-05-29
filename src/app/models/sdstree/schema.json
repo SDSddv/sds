@@ -1,0 +1,167 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"title": "JSON SCHEMA SDS",
+	"description": "this is a json schema for the validation of the SDS format",
+	"type": "object",
+	"required": ["name", "comment", "history"],
+	"properties": {
+		"name": {
+			"$ref": "#/definitions/name"
+		},
+		"comment": {
+			"$ref": "#/definitions/comment"
+		},
+		"history": {
+			"$ref": "#/definitions/history"
+		},
+		"groups": {
+			"$ref": "#/definitions/groups"
+		}
+	},
+	"definitions": {
+		"name": {
+			"type": "string",
+			"pattern": "^(_*[a-zA-Z0-9]+_*)+$"
+		},
+		"path": {
+			"type": "string",
+			"pattern": "^(\/*(_*[a-zA-Z0-9]+_*)+\/*)+$"
+		},
+		"comment": {
+			"type": "string"
+		},
+		"datetime": {
+			"type": "string",
+			"pattern": "((^(((0[1-9]|1[0-9]|2[0-8])[\\/](0[1-9]|1[012]))|((29|30|31)[\\/](0[13578]|1[02]))|((29|30)[\\/](0[4,6,9]|11)))[\\/]\\d\\d [0-2][0-9]:[0-5][0-9]$)|(^29[\\/]02[\\/](00|04|08|12|16|20|24|28|32|36|40|44|48|52|56|60|64|68|72|76|80|84|88|92|96)) [0-2][0-9]:[0-5][0-9]$)"
+		},
+		"groups": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/group"
+			}
+		},
+		"group": {
+			"type": "object",
+			"required": ["name", "comment"],
+			"properties": {
+				"name": {
+					"$ref": "#/definitions/name"
+				},
+				"comment": {
+					"$ref": "#/definitions/comment"
+				},
+				"groups": {
+					"$ref": "#/definitions/groups"
+				},
+				"matrices": {
+					"$ref": "#/definitions/matrices"
+				}
+			},
+			"additionalProperties": false
+		},
+		"matrices": {
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/matrix"
+			}
+		},
+		"matrix": {
+			"type": "object",
+			"required": ["name", "comment", "type", "values"],
+			"properties": {
+				"name": {
+					"$ref": "#/definitions/name"
+				},
+				"comment": {
+					"$ref": "#/definitions/comment"
+				},
+				"type": {
+					"type": "string",
+					"enum": ["int32", "float32", "float64", "bool"]
+				},
+				"unit": {
+					"type": "string"
+				},
+				"values": {
+					"$ref": "#/definitions/values"
+				},
+				"dimensions": {
+					"type": "array",
+					"minItems": 1,
+					"maxItems": 4,
+					"items": {
+						"$ref": "#/definitions/dimension"
+					}
+				},
+				"variants": {
+					"type": "array",
+					"items": {
+						"$ref": "#/definitions/variant"
+					}
+				}
+			},
+			"additionalProperties": false
+		},
+		"dimension": {
+			"type": "object",
+			"required": ["size"],
+			"properties": {
+				"size": {
+					"type": "number"
+				},
+				"scale": {
+					"$ref": "#/definitions/path"
+				}
+			}
+		},
+		"values": {
+			"type": ["number", "boolean", "array"],
+			"minItems": 1,
+			"items" : {
+				"type": ["number", "boolean", "array"],
+				"minItems": 1,
+				"items" : {
+					"type": ["number", "boolean", "array"],
+					"minItems": 1,
+					"items" : {
+						"type": ["number", "boolean", "array"],
+						"minItems": 1,
+						"items" : {
+							"type": ["number", "boolean"]
+						}
+					}
+				}
+			}
+		},
+		"history": {
+			"type" : "object",
+			"required": ["tool", "date", "user"],
+			"properties": {
+				"tool": {
+					"type": "string",
+					"minLength": 1
+				},
+				"date": {
+					"$ref": "#/definitions/datetime"
+				},
+				"user": {
+					"type": "string",
+					"minLength": 1
+				}
+			}
+		},
+		"variant": {
+			"type" : "object",
+			"required": ["name"],
+			"properties": {
+				"name": {
+					"$ref": "#/definitions/path"
+				},
+				"comment": {
+					"$ref": "#/definitions/comment"
+				}
+			}
+		}
+	},
+	"additionalProperties": false
+}

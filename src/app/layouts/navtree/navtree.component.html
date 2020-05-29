@@ -1,5 +1,5 @@
 <div fxLayout="row" fxFlexFill ngxSplit="row">
-  <div fxFlex="30%" ngxSplitArea >
+  <div fxFlex="15%" ngxSplitArea >
     <div id="navtree">
       <dx-scroll-view #scrollView
           id="scrollview"
@@ -9,9 +9,11 @@
           [bounceEnabled]="pullDown"
           [reachBottomText]="reachBottomText">
           <dx-tree-view
+             class="mainTreeView"
              [dataSource]="hierarchicalData()"
              [searchEnabled]="true"
-             (onItemClick)="selectItem($event)">
+             (onItemClick)="selectItem($event)"
+             (onItemContextMenu) = "onRightClick($event)">
           </dx-tree-view>
       </dx-scroll-view>
     </div>
@@ -19,7 +21,16 @@
   <div class="handle handle-row" ngxSplitHandle>
         <i class="material-icons">&#xE25D;</i>
   </div>
-  <div fxFlex="70%" ngxSplitArea class="c1r1" >
+  <!--
+    FIXME_20: The navtree web page should only deals with the navtree component.
+  -->
+  <div fxFlex="65%" ngxSplitArea class="c1r1" >
     <div><app-contentpage> </app-contentpage></div>
+  </div>
+  <div fxFlex="20%" ngxSplitArea class="c1r1" >
+    <!--
+      FIXME_22: The logger component should be in a resizable container.
+    -->
+    <div><app-logger> </app-logger></div>
   </div>
 </div>

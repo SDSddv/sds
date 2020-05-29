@@ -1,0 +1,22 @@
+::ng-deep .list-container {
+  height: 95%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+::ng-deep .item {
+  white-space: normal;
+}
+
+::ng-deep .item > td {
+  vertical-align: middle;
+}
+
+::ng-deep .icon {
+  vertical-align: middle;
+}
+
+::ng-deep .text {
+  padding-left: 10px;
+}
